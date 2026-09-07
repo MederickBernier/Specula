@@ -3,6 +3,7 @@ import {
     BookOpen,
     ClipboardCheck,
     FileText,
+    FlaskConical,
     FolderGit2,
     LayoutGrid,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as decisionsIndex } from '@/routes/decisions';
+import { index as prototypesIndex } from '@/routes/prototypes';
 import { index as vettingIndex } from '@/routes/vetting';
 import type { NavItem } from '@/types';
 
@@ -39,6 +41,11 @@ const mainNavItems: NavItem[] = [
         title: 'Vetting',
         href: vettingIndex(),
         icon: ClipboardCheck,
+    },
+    {
+        title: 'Prototypes',
+        href: prototypesIndex(),
+        icon: FlaskConical,
     },
 ];
 

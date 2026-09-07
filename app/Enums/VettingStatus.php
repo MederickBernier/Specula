@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Concerns\HasSelectOptions;
+
 enum VettingStatus: string
 {
+    use HasSelectOptions;
+
     case New = 'new';
     case InProgress = 'in_progress';
     case Vetted = 'vetted';
@@ -30,18 +34,5 @@ enum VettingStatus: string
     public function isResolved(): bool
     {
         return in_array($this, [self::Vetted, self::Rejected], true);
-    }
-
-    /**
-     * Value/label pairs for rendering a select in the frontend.
-     *
-     * @return list<array{value: string, label: string}>
-     */
-    public static function options(): array
-    {
-        return array_map(
-            fn (self $case): array => ['value' => $case->value, 'label' => $case->label()],
-            self::cases(),
-        );
     }
 }

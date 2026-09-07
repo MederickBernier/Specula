@@ -2,8 +2,12 @@
 
 namespace App\Enums;
 
+use App\Concerns\HasSelectOptions;
+
 enum DecisionRelationshipType: string
 {
+    use HasSelectOptions;
+
     case Constrains = 'constrains';
     case Supersedes = 'supersedes';
     case RelatedTo = 'related_to';
@@ -15,18 +19,5 @@ enum DecisionRelationshipType: string
             self::Supersedes => 'Supersedes',
             self::RelatedTo => 'Related to',
         };
-    }
-
-    /**
-     * Value/label pairs for rendering a select in the frontend.
-     *
-     * @return list<array{value: string, label: string}>
-     */
-    public static function options(): array
-    {
-        return array_map(
-            fn (self $case): array => ['value' => $case->value, 'label' => $case->label()],
-            self::cases(),
-        );
     }
 }

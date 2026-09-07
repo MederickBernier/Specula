@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
+use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\VettingItemController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('vetting', VettingItemController::class)
         ->parameters(['vetting' => 'vettingItem']);
+
+    Route::resource('prototypes', PrototypeController::class);
 });
 
 require __DIR__.'/settings.php';
