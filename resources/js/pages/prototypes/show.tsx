@@ -1,13 +1,15 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { GitBranch, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
+import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { destroy, edit, index } from '@/routes/prototypes';
+import type { ItemLinkProps } from '@/types';
 import type { Prototype } from './types';
 
-type ShowProps = {
+type ShowProps = ItemLinkProps & {
     prototype: Prototype;
     html: {
         hypothesis: string | null;
@@ -18,7 +20,11 @@ type ShowProps = {
     };
 };
 
-export default function ShowPrototype({ prototype, html }: ShowProps) {
+export default function ShowPrototype({
+    prototype,
+    html,
+    ...links
+}: ShowProps) {
     return (
         <>
             <Head title={prototype.title} />
@@ -107,6 +113,8 @@ export default function ShowPrototype({ prototype, html }: ShowProps) {
                         />
                     </section>
                 )}
+
+                <ItemLinks {...links} />
             </div>
         </>
     );

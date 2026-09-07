@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Concerns\HasItemLinks;
+use App\Contracts\Linkable;
 use App\Enums\DecisionStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\DecisionRecordFactory;
@@ -43,10 +45,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'consequences',
     'conditions_for_revisiting',
 ])]
-class DecisionRecord extends Model
+class DecisionRecord extends Model implements Linkable
 {
     /** @use HasFactory<DecisionRecordFactory> */
     use HasFactory;
+
+    use HasItemLinks;
 
     /** @var list<string> */
     protected $appends = ['document_id'];
@@ -54,7 +58,8 @@ class DecisionRecord extends Model
     /**
      * @return array<string,string>
      */
-    protected function casts():array{
+    protected function casts(): array
+    {
         return [
             'status' => DecisionStatus::class,
         ];
@@ -83,21 +88,39 @@ class DecisionRecord extends Model
     /**
      * @return HasMany<DecisionOption, $this>
      */
-    public function options():HasMany{
+    public function options(): HasMany
+    {
         return $this->hasMany(DecisionOption::class);
     }
 
     /**
      * @return HasMany<DecisionLink, $this>
      */
-    public function outgoingLinks():HasMany{
+    public function outgoingLinks(): HasMany
+    {
         return $this->hasMany(DecisionLink::class, 'source_id');
     }
 
     /**
      * @return HasMany<DecisionLink, $this>
      */
-    public function incomingLinks():HasMany{
+    public function incomingLinks(): HasMany
+    {
         return $this->hasMany(DecisionLink::class, 'target_id');
+    }
+
+    public function linkLabel(): string
+    {
+        return $this->document_id.' — '.$this->title;
+    }
+
+    public function linkUrl(): string
+    {
+        return route('decisions.show', $this);
+    }
+
+    public static function moduleLabel(): string
+    {
+        return 'Decision record';
     }
 }

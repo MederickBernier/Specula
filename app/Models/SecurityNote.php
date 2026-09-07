@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Concerns\HasItemLinks;
+use App\Contracts\Linkable;
 use App\Enums\SecurityNoteSource;
 use App\Enums\SecurityNoteStatus;
 use App\Enums\SecurityRoutedTo;
@@ -44,10 +46,12 @@ use Illuminate\Database\Eloquent\Model;
     'date_flagged',
     'external_url',
 ])]
-class SecurityNote extends Model
+class SecurityNote extends Model implements Linkable
 {
     /** @use HasFactory<SecurityNoteFactory> */
     use HasFactory;
+
+    use HasItemLinks;
 
     /**
      * @return array<string,string>
@@ -81,5 +85,20 @@ class SecurityNote extends Model
 
             $note->date_resolved = null;
         });
+    }
+
+    public function linkLabel(): string
+    {
+        return $this->title;
+    }
+
+    public function linkUrl(): string
+    {
+        return route('security-notes.show', $this);
+    }
+
+    public static function moduleLabel(): string
+    {
+        return 'Security note';
     }
 }

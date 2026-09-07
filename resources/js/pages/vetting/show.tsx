@@ -1,12 +1,14 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
+import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { Button } from '@/components/ui/button';
 import { destroy, edit, index } from '@/routes/vetting';
+import type { ItemLinkProps } from '@/types';
 import type { VettingItem } from './types';
 
-type ShowProps = {
+type ShowProps = ItemLinkProps & {
     item: VettingItem;
     html: {
         proposal_description: string | null;
@@ -15,7 +17,7 @@ type ShowProps = {
     };
 };
 
-export default function ShowVettingItem({ item, html }: ShowProps) {
+export default function ShowVettingItem({ item, html, ...links }: ShowProps) {
     return (
         <>
             <Head title={item.title} />
@@ -89,6 +91,8 @@ export default function ShowVettingItem({ item, html }: ShowProps) {
                         html={html.rejection_reason}
                     />
                 )}
+
+                <ItemLinks {...links} />
             </div>
         </>
     );

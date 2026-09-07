@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Concerns\HasItemLinks;
+use App\Contracts\Linkable;
 use App\Enums\VettingSourceType;
 use App\Enums\VettingStatus;
 use Carbon\CarbonImmutable;
@@ -36,10 +38,12 @@ use Illuminate\Database\Eloquent\Model;
     'rejection_reason',
     'external_url',
 ])]
-class VettingItem extends Model
+class VettingItem extends Model implements Linkable
 {
     /** @use HasFactory<VettingItemFactory> */
     use HasFactory;
+
+    use HasItemLinks;
 
     /**
      * @return array<string,string>
@@ -70,5 +74,20 @@ class VettingItem extends Model
 
             $item->date_resolved = null;
         });
+    }
+
+    public function linkLabel(): string
+    {
+        return $this->title;
+    }
+
+    public function linkUrl(): string
+    {
+        return route('vetting.show', $this);
+    }
+
+    public static function moduleLabel(): string
+    {
+        return 'Vetting item';
     }
 }

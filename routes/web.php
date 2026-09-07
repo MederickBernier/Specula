@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
+use App\Http\Controllers\ItemLinkController;
 use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\SecurityNoteController;
 use App\Http\Controllers\VettingItemController;
@@ -25,6 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->parameters(['vetting' => 'vettingItem']);
 
     Route::resource('prototypes', PrototypeController::class);
+
+    Route::post('item-links', [ItemLinkController::class, 'store'])->name('item-links.store');
+    Route::delete('item-links/{itemLink}', [ItemLinkController::class, 'destroy'])
+        ->name('item-links.destroy');
 
     // Named security-notes rather than security: routes/settings.php already
     // owns the security.* names for the account security page.

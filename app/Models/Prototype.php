@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Concerns\HasItemLinks;
+use App\Contracts\Linkable;
 use App\Enums\ConfidenceLevel;
 use App\Enums\PrototypeStatus;
 use Carbon\CarbonImmutable;
@@ -40,10 +42,12 @@ use Illuminate\Database\Eloquent\Model;
     'repo_reference',
     'date_started',
 ])]
-class Prototype extends Model
+class Prototype extends Model implements Linkable
 {
     /** @use HasFactory<PrototypeFactory> */
     use HasFactory;
+
+    use HasItemLinks;
 
     /**
      * @return array<string,string>
@@ -75,5 +79,20 @@ class Prototype extends Model
 
             $prototype->date_completed = null;
         });
+    }
+
+    public function linkLabel(): string
+    {
+        return $this->title;
+    }
+
+    public function linkUrl(): string
+    {
+        return route('prototypes.show', $this);
+    }
+
+    public static function moduleLabel(): string
+    {
+        return 'Prototype';
     }
 }

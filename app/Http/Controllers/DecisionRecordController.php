@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\DecisionRelationshipType;
 use App\Enums\DecisionStatus;
@@ -15,6 +16,7 @@ use Inertia\Response;
 
 class DecisionRecordController extends Controller
 {
+    use PresentsItemLinks;
     use RendersMarkdown;
 
     /**
@@ -72,6 +74,7 @@ class DecisionRecordController extends Controller
 
         return Inertia::render('decisions/show', [
             'record' => $decisionRecord,
+            ...$this->itemLinkProps($decisionRecord),
             'html' => $this->renderRecordMarkdown($decisionRecord),
             'relationshipTypes' => DecisionRelationshipType::options(),
             'linkTargets' => DecisionRecord::query()

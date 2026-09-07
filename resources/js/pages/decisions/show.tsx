@@ -2,6 +2,7 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import ItemLinks from '@/components/item-links';
 import { Markdown, MarkdownSection } from '@/components/markdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,10 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 import { destroy, edit, index } from '@/routes/decisions';
 import links from '@/routes/decisions/links';
-import type { SelectOption } from '@/types';
+import type { ItemLinkProps, SelectOption } from '@/types';
 import type { DecisionLink, DecisionRecord } from './types';
 
-type ShowProps = {
+type ShowProps = ItemLinkProps & {
     record: DecisionRecord & {
         outgoing_links: DecisionLink[];
         incoming_links: DecisionLink[];
@@ -127,6 +128,7 @@ export default function ShowDecision({
     html,
     relationshipTypes,
     linkTargets,
+    ...crossModuleLinks
 }: ShowProps) {
     return (
         <>
@@ -364,6 +366,8 @@ export default function ShowDecision({
                         </Form>
                     )}
                 </section>
+
+                <ItemLinks {...crossModuleLinks} />
             </div>
         </>
     );

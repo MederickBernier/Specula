@@ -1,13 +1,15 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
+import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { destroy, edit, index } from '@/routes/security-notes';
+import type { ItemLinkProps } from '@/types';
 import type { SecurityNote } from './types';
 
-type ShowProps = {
+type ShowProps = ItemLinkProps & {
     note: SecurityNote;
     html: {
         finding: string | null;
@@ -16,7 +18,7 @@ type ShowProps = {
     };
 };
 
-export default function ShowSecurityNote({ note, html }: ShowProps) {
+export default function ShowSecurityNote({ note, html, ...links }: ShowProps) {
     return (
         <>
             <Head title={note.title} />
@@ -106,6 +108,8 @@ export default function ShowSecurityNote({ note, html }: ShowProps) {
                         html={html.deferral_reason}
                     />
                 )}
+
+                <ItemLinks {...links} />
             </div>
         </>
     );

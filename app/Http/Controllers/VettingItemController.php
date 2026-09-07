@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\VettingSourceType;
 use App\Enums\VettingStatus;
@@ -14,6 +15,7 @@ use Inertia\Response;
 
 class VettingItemController extends Controller
 {
+    use PresentsItemLinks;
     use RendersMarkdown;
 
     /**
@@ -58,6 +60,7 @@ class VettingItemController extends Controller
     {
         return Inertia::render('vetting/show', [
             'item' => $vettingItem,
+            ...$this->itemLinkProps($vettingItem),
             'html' => [
                 'proposal_description' => $this->renderMarkdown($vettingItem->proposal_description),
                 'assessment' => $this->renderMarkdown($vettingItem->assessment),
