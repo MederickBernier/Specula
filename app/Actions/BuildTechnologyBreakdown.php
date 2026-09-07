@@ -23,7 +23,10 @@ class BuildTechnologyBreakdown
      */
     public function __invoke(): array
     {
-        $projects = Project::query()->orderBy('name')->get(['id', 'name', 'prefix', 'archived_at']);
+        $projects = Project::query()
+            ->get(['id', 'name', 'prefix', 'archived_at'])
+            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
         $technologies = Technology::query()->orderBy('name')->get();
         $usages = TechnologyUsage::query()->with('usable')->get();
 

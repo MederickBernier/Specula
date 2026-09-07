@@ -55,6 +55,16 @@ class VettingItem extends Model implements Linkable
     protected function casts(): array
     {
         return [
+            // Encrypted at rest: this is the substance of the work, and a
+            // database that leaves the machine should not carry it in the
+            // clear. Statuses and dates stay readable so the app can still
+            // sort, filter and count on them.
+            'title' => 'encrypted',
+            'source_detail' => 'encrypted',
+            'proposal_description' => 'encrypted',
+            'assessment' => 'encrypted',
+            'rejection_reason' => 'encrypted',
+            'external_url' => 'encrypted',
             'source_type' => VettingSourceType::class,
             'status' => VettingStatus::class,
             'date_raised' => 'date',

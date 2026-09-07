@@ -260,8 +260,9 @@ class DashboardController extends Controller
                 'securityNotes as open_findings_count' => fn ($query) => $query
                     ->whereNull('date_resolved'),
             ])
-            ->orderBy('name')
             ->get()
+            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values()
             ->map(fn (Project $project): array => [
                 'id' => $project->id,
                 'name' => $project->name,

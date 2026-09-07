@@ -18,8 +18,8 @@ trait OffersProjects
     protected function projectOptions(): array
     {
         return array_values(Project::query()
-            ->orderBy('name')
             ->get(['id', 'name', 'prefix', 'archived_at'])
+            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
             ->map(fn (Project $project): array => [
                 'value' => (string) $project->id,
                 // Archived projects stay pickable but say so: work sometimes

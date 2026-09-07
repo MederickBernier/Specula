@@ -70,6 +70,18 @@ class DecisionRecord extends Model implements Linkable
     protected function casts(): array
     {
         return [
+            // Encrypted at rest: this is the substance of the work, and a
+            // database that leaves the machine should not carry it in the
+            // clear. Statuses and dates stay readable so the app can still
+            // sort, filter and count on them.
+            'title' => 'encrypted',
+            'author' => 'encrypted',
+            'deciders' => 'encrypted',
+            'affects' => 'encrypted',
+            'proposal_context' => 'encrypted',
+            'recommendation' => 'encrypted',
+            'consequences' => 'encrypted',
+            'conditions_for_revisiting' => 'encrypted',
             'status' => DecisionStatus::class,
             'next_review_at' => 'immutable_date',
         ];

@@ -80,6 +80,16 @@ class SecurityNote extends Model implements Linkable
     protected function casts(): array
     {
         return [
+            // Encrypted at rest: this is the substance of the work, and a
+            // database that leaves the machine should not carry it in the
+            // clear. Statuses and dates stay readable so the app can still
+            // sort, filter and count on them.
+            'title' => 'encrypted',
+            'category' => 'encrypted',
+            'finding' => 'encrypted',
+            'non_issue_reason' => 'encrypted',
+            'deferral_reason' => 'encrypted',
+            'external_url' => 'encrypted',
             'source' => SecurityNoteSource::class,
             'severity' => SecuritySeverity::class,
             'routed_to' => SecurityRoutedTo::class,

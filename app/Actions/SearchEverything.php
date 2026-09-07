@@ -11,6 +11,7 @@ use App\Models\SecurityNote;
 use App\Models\VettingItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 /**
  * One search over everything written down.
@@ -136,6 +137,9 @@ class SearchEverything
             ],
             [
                 'module' => __('Tech radar'),
+                // The only source still searchable in SQL: radar items hold
+                // public feed text and are deliberately not encrypted.
+                'sql' => true,
                 'model' => RadarItem::class,
                 'columns' => ['title', 'summary', 'relevance_note'],
                 'present' => fn (RadarItem $item): array => [
@@ -164,27 +168,15 @@ class SearchEverything
         /** @var array<string, list<string>> $relations */
         $relations = $source['relations'] ?? [];
 
-        $query = $class::query()->where(function (Builder $match) use ($columns, $relations, $term): void {
-            foreach ($columns as $column) {
-                $match->orWhere($column, 'ilike', '%'.$term.'%');
-            }
+        $matches = ($source['sql'] ?? false) === true
+            ? $this->matchInDatabase($class, $columns, $relations, $term)
+            : $this->matchInMemory($class, $columns, $relations, $term);
 
-            foreach ($relations as $relation => $relationColumns) {
-                $match->orWhereHas($relation, function (Builder $related) use ($relationColumns, $term): void {
-                    $related->where(function (Builder $inner) use ($relationColumns, $term): void {
-                        foreach ($relationColumns as $column) {
-                            $inner->orWhere($column, 'ilike', '%'.$term.'%');
-                        }
-                    });
-                });
-            }
-        });
-
-        $total = (clone $query)->count();
+        $total = $matches->count();
 
         $results = [];
 
-        foreach ($query->latest('updated_at')->limit(self::PER_MODULE)->get() as $record) {
+        foreach ($matches->take(self::PER_MODULE) as $record) {
             /** @var callable(Model): array{label: string, url: string, meta: string|null} $present */
             $present = $source['present'];
             $presented = $present($record);
@@ -202,6 +194,83 @@ class SearchEverything
             'total' => $total,
             'results' => $results,
         ];
+    }
+
+    /**
+     * @param  class-string<Model>  $class
+     * @param  list<string>  $columns
+     * @param  array<string, list<string>>  $relations
+     * @return Collection<int, Model>
+     */
+    private function matchInDatabase(string $class, array $columns, array $relations, string $term)
+    {
+        return $class::query()
+            ->where(function (Builder $match) use ($columns, $relations, $term): void {
+                foreach ($columns as $column) {
+                    $match->orWhere($column, 'ilike', '%'.$term.'%');
+                }
+
+                foreach ($relations as $relation => $relationColumns) {
+                    $match->orWhereHas($relation, function (Builder $related) use ($relationColumns, $term): void {
+                        $related->where(function (Builder $inner) use ($relationColumns, $term): void {
+                            foreach ($relationColumns as $column) {
+                                $inner->orWhere($column, 'ilike', '%'.$term.'%');
+                            }
+                        });
+                    });
+                }
+            })
+            ->latest('updated_at')
+            ->get();
+    }
+
+    /**
+     * Matching after decryption, for everything the database can no longer read.
+     *
+     * The work modules are encrypted at rest, so their text is opaque to SQL:
+     * a LIKE against ciphertext matches nothing, quietly. Rows are read and
+     * compared here instead.
+     *
+     * ponytail: reads the table to search it. Fine for a few hundred records
+     * one person wrote; if it ever drags, the answer is a blind index of
+     * hashed tokens rather than giving the plain text back to the database.
+     *
+     * @param  class-string<Model>  $class
+     * @param  list<string>  $columns
+     * @param  array<string, list<string>>  $relations
+     * @return Collection<int, Model>
+     */
+    private function matchInMemory(string $class, array $columns, array $relations, string $term)
+    {
+        return $class::query()
+            ->with(array_keys($relations))
+            ->latest('updated_at')
+            ->get()
+            ->filter(function (Model $record) use ($columns, $relations, $term): bool {
+                foreach ($columns as $column) {
+                    if ($this->contains($record->getAttribute($column), $term)) {
+                        return true;
+                    }
+                }
+
+                foreach ($relations as $relation => $relationColumns) {
+                    foreach ($record->getRelation($relation) as $related) {
+                        foreach ($relationColumns as $column) {
+                            if ($this->contains($related->getAttribute($column), $term)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            })
+            ->values();
+    }
+
+    private function contains(mixed $value, string $term): bool
+    {
+        return is_string($value) && mb_stripos($value, $term) !== false;
     }
 
     /**

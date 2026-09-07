@@ -61,6 +61,17 @@ class Prototype extends Model implements Linkable
     protected function casts(): array
     {
         return [
+            // Encrypted at rest: this is the substance of the work, and a
+            // database that leaves the machine should not carry it in the
+            // clear. Statuses and dates stay readable so the app can still
+            // sort, filter and count on them.
+            'title' => 'encrypted',
+            'hypothesis' => 'encrypted',
+            'test_approach' => 'encrypted',
+            'result' => 'encrypted',
+            'abandoned_reason' => 'encrypted',
+            'reusability_note' => 'encrypted',
+            'repo_reference' => 'encrypted',
             'status' => PrototypeStatus::class,
             'confidence_level' => ConfidenceLevel::class,
             'is_reusable' => 'boolean',

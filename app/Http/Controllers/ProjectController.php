@@ -31,8 +31,11 @@ class ProjectController extends Controller
                 ->withCount(['decisionRecords', 'vettingItems', 'prototypes', 'securityNotes', 'notes'])
                 ->when($showArchived, fn ($query) => $query->archived())
                 ->when(! $showArchived, fn ($query) => $query->active())
-                ->orderBy('name')
-                ->get(),
+                ->get()
+                // Sorted here rather than in SQL: the name is encrypted at
+                // rest, so the database can only order the ciphertext.
+                ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values(),
             'showingArchived' => $showArchived,
             'archivedCount' => Project::query()->archived()->count(),
         ]);

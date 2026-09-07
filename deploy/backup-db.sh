@@ -4,6 +4,11 @@
 # The data is the asset worth protecting, not the OS install, so this dumps the
 # database rather than snapshotting the droplet.
 #
+# The work modules are encrypted in the database, so this dump carries their
+# content as ciphertext. It is readable only with the instance's APP_KEY, which
+# means the key must be stored somewhere other than beside these files: a copy
+# of both together is a plain text backup.
+#
 # Install (as root on the droplet):
 #   ln -s /opt/specula/deploy/backup-db.sh /etc/cron.daily/specula-backup
 # or an explicit crontab entry:
