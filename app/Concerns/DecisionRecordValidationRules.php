@@ -36,6 +36,7 @@ trait DecisionRecordValidationRules
             'recommendation' => ['required', 'string'],
             'consequences' => ['nullable', 'string'],
             'conditions_for_revisiting' => ['nullable', 'string'],
+            'next_review_at' => ['nullable', 'date'],
 
             'options' => ['array'],
             'options.*.name' => ['required', 'string', 'max:255'],

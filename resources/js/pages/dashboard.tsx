@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import {
     AlertTriangle,
+    CalendarClock,
     FlaskConical,
     PauseCircle,
     RssIcon,
@@ -21,7 +22,15 @@ type Stat = {
     url: string;
 };
 
+type DueItem = {
+    kind: string;
+    label: string;
+    url: string;
+    due_at: string | null;
+};
+
 type Queues = {
+    dueForReview: DueItem[];
     severeFindings: {
         id: number;
         title: string;
@@ -97,6 +106,38 @@ export default function Dashboard({
                     ))}
                 </div>
 
+                <QueueCard
+                    title="Asked to be looked at again"
+                    icon={<CalendarClock className="size-4" />}
+                    empty={queues.dueForReview.length === 0}
+                >
+                    <ul className="space-y-2 text-sm">
+                        {queues.dueForReview.map((item) => (
+                            <li
+                                key={item.url}
+                                className="flex items-center justify-between gap-3"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <Badge variant="outline">{item.kind}</Badge>
+                                    <Link
+                                        href={item.url}
+                                        className="hover:underline"
+                                    >
+                                        {item.label}
+                                    </Link>
+                                </span>
+                                <span className="text-muted-foreground">
+                                    {item.due_at
+                                        ? new Date(
+                                              item.due_at,
+                                          ).toLocaleDateString()
+                                        : '—'}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </QueueCard>
+
                 <div className="grid gap-4 lg:grid-cols-2">
                     <QueueCard
                         title="Severe findings still open"
@@ -157,7 +198,7 @@ export default function Dashboard({
                     </QueueCard>
 
                     <QueueCard
-                        title="Deferred findings"
+                        title="Deferred with no date"
                         icon={<PauseCircle className="size-4" />}
                         empty={queues.deferredFindings.length === 0}
                     >

@@ -37,6 +37,13 @@ trait SecurityNoteValidationRules
                 'required_if:status,'.SecurityNoteStatus::Deferred->value,
                 'string',
             ],
+            // A deferral with no date to come back to is how a finding gets
+            // quietly forgotten, so deferring one asks when to look again.
+            'deferred_until' => [
+                'nullable',
+                'required_if:status,'.SecurityNoteStatus::Deferred->value,
+                'date',
+            ],
             'date_flagged' => ['required', 'date'],
             'external_url' => ['nullable', 'url', 'max:255'],
         ];
@@ -50,6 +57,7 @@ trait SecurityNoteValidationRules
         return [
             'non_issue_reason.required' => __('Say why this is not an issue.'),
             'deferral_reason.required_if' => __('A deferred finding needs a reason.'),
+            'deferred_until.required_if' => __('Say when to look at this again.'),
         ];
     }
 

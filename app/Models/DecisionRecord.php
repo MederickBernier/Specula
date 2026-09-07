@@ -8,6 +8,7 @@ use App\Enums\DecisionStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\DecisionRecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $recommendation
  * @property string|null $consequences
  * @property string|null $conditions_for_revisiting
+ * @property CarbonImmutable|null $next_review_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Project|null $project
@@ -48,6 +50,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'recommendation',
     'consequences',
     'conditions_for_revisiting',
+    'next_review_at',
 ])]
 class DecisionRecord extends Model implements Linkable
 {
@@ -66,6 +69,7 @@ class DecisionRecord extends Model implements Linkable
     {
         return [
             'status' => DecisionStatus::class,
+            'next_review_at' => 'immutable_date',
         ];
     }
 
@@ -76,6 +80,14 @@ class DecisionRecord extends Model implements Linkable
      */
     protected static function booted(): void
     {
+        // A superseded decision has been replaced, so it stops asking to be
+        // looked at again.
+        static::saving(function (self $record): void {
+            if ($record->status === DecisionStatus::Superseded) {
+                $record->next_review_at = null;
+            }
+        });
+
         static::saving(function (self $record): void {
             if ($record->project_id === null) {
                 return;
@@ -109,6 +121,17 @@ class DecisionRecord extends Model implements Linkable
             $this->category,
             $this->sequence,
         );
+    }
+
+    /**
+     * Decisions asking to be looked at again on or before the given day.
+     *
+     * @param  Builder<DecisionRecord>  $query
+     */
+    public function scopeDueForReview(Builder $query, ?CarbonImmutable $on = null): void
+    {
+        $query->whereNotNull('next_review_at')
+            ->whereDate('next_review_at', '<=', $on ?? CarbonImmutable::now());
     }
 
     /**

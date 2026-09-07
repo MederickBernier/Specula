@@ -13,6 +13,7 @@ import type { DecisionOption, DecisionRecord } from './types';
 
 type DecisionFormData = {
     project_id: string;
+    next_review_at: string;
     project_prefix: string;
     category: string;
     sequence: number | string;
@@ -42,6 +43,7 @@ function initialData(
 ): DecisionFormData {
     return {
         project_id: record?.project_id ? String(record.project_id) : '',
+        next_review_at: record?.next_review_at?.slice(0, 10) ?? '',
         project_prefix: record?.project_prefix ?? '',
         category: record?.category ?? '',
         sequence: record?.sequence ?? '',
@@ -247,6 +249,24 @@ export default function DecisionForm({
                     <InputError message={errors[field]} />
                 </div>
             ))}
+
+            <div className="grid gap-2">
+                <Label htmlFor="next_review_at">Review again on</Label>
+                <Input
+                    id="next_review_at"
+                    type="date"
+                    className="w-56"
+                    value={data.next_review_at}
+                    onChange={(event) =>
+                        setData('next_review_at', event.target.value)
+                    }
+                />
+                <p className="text-sm text-muted-foreground">
+                    Optional. On this date the decision shows up on the
+                    dashboard, so the conditions above get read again.
+                </p>
+                <InputError message={errors.next_review_at} />
+            </div>
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">

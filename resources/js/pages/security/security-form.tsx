@@ -12,6 +12,7 @@ import type { SecurityNote } from './types';
 
 type SecurityFormData = {
     project_id: string;
+    deferred_until: string;
     title: string;
     source: string;
     category: string;
@@ -42,6 +43,7 @@ function initialData(
 ): SecurityFormData {
     return {
         project_id: note?.project_id ? String(note.project_id) : '',
+        deferred_until: note?.deferred_until?.slice(0, 10) ?? '',
         title: note?.title ?? '',
         source: note?.source ?? sources[0]?.value ?? '',
         category: note?.category ?? '',
@@ -261,6 +263,24 @@ export default function SecurityForm({
                         required
                     />
                     <InputError message={errors.deferral_reason} />
+
+                    <Label htmlFor="deferred_until">
+                        Look at this again on
+                    </Label>
+                    <Input
+                        id="deferred_until"
+                        type="date"
+                        className="w-56"
+                        value={data.deferred_until}
+                        onChange={(event) =>
+                            setData('deferred_until', event.target.value)
+                        }
+                        required
+                    />
+                    <p className="text-sm text-muted-foreground">
+                        A deferral with no date is how a finding gets forgotten.
+                    </p>
+                    <InputError message={errors.deferred_until} />
                 </div>
             )}
 

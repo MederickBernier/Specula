@@ -14,11 +14,17 @@ use App\Models\Prototype;
 use App\Models\RadarItem;
 use App\Models\SecurityNote;
 use App\Models\VettingItem;
+use Carbon\CarbonImmutable;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    /**
+     * @var list<array{kind: string, label: string, url: string, due_at: string|null}>|null
+     */
+    private ?array $dueForReview = null;
+
     /**
      * The landing surface: what is waiting on you, module by module.
      *
@@ -72,6 +78,13 @@ class DashboardController extends Controller
                 'url' => route('security-notes.index'),
             ],
             [
+                'key' => 'review',
+                'label' => 'Due for review',
+                'value' => count($this->dueForReview()),
+                'hint' => 'asked to be revisited',
+                'url' => route('dashboard'),
+            ],
+            [
                 'key' => 'decisions',
                 'label' => 'Decisions unsettled',
                 'value' => DecisionRecord::query()
@@ -106,8 +119,10 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get(['id', 'title', 'date_raised'])
                 ->all(),
+            'dueForReview' => array_slice($this->dueForReview(), 0, 8),
             'deferredFindings' => SecurityNote::query()
                 ->where('status', SecurityNoteStatus::Deferred)
+                ->whereNull('deferred_until')
                 ->orderBy('date_flagged')
                 ->limit(5)
                 ->get(['id', 'title', 'date_flagged'])
@@ -120,5 +135,50 @@ class DashboardController extends Controller
                 ->get(['id', 'name', 'last_error'])
                 ->all(),
         ];
+    }
+
+    /**
+     * Everything that asked to be looked at again by now, oldest first.
+     *
+     * A decision records the conditions for revisiting it and a deferred
+     * finding records why it was put off; both now carry a date, and this is
+     * where that date comes back.
+     *
+     * @return list<array{kind: string, label: string, url: string, due_at: string|null}>
+     */
+    private function dueForReview(): array
+    {
+        // Asked for twice on one render: once for the count, once for the list.
+        if ($this->dueForReview !== null) {
+            return $this->dueForReview;
+        }
+
+        $today = CarbonImmutable::now();
+
+        $decisions = DecisionRecord::query()
+            ->dueForReview($today)
+            ->orderBy('next_review_at')
+            ->get(['id', 'project_prefix', 'category', 'sequence', 'title', 'next_review_at'])
+            ->map(fn (DecisionRecord $record): array => [
+                'kind' => 'Decision',
+                'label' => $record->document_id.' — '.$record->title,
+                'url' => route('decisions.show', $record),
+                'due_at' => $record->next_review_at?->toDateString(),
+            ]);
+
+        $findings = SecurityNote::query()
+            ->deferralElapsed($today)
+            ->orderBy('deferred_until')
+            ->get(['id', 'title', 'deferred_until'])
+            ->map(fn (SecurityNote $note): array => [
+                'kind' => 'Finding',
+                'label' => $note->title,
+                'url' => route('security-notes.show', $note),
+                'due_at' => $note->deferred_until?->toDateString(),
+            ]);
+
+        return $this->dueForReview = array_values(
+            $decisions->concat($findings)->sortBy('due_at')->all(),
+        );
     }
 }

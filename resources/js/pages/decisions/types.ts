@@ -28,6 +28,7 @@ export type DecisionRecord = DecisionRecordSummary & {
     recommendation: string;
     consequences: string | null;
     conditions_for_revisiting: string | null;
+    next_review_at: string | null;
     options: DecisionOption[];
 };
 
