@@ -27,6 +27,9 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 
     Route::resource('projects', ProjectController::class);
 
+    Route::get('projects/{project}/timeline', [ProjectController::class, 'timeline'])
+        ->name('projects.timeline');
+
     Route::get('projects/{project}/export', [ProjectController::class, 'export'])
         ->name('projects.export');
 

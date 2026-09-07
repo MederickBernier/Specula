@@ -1,5 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { History, Pencil, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Heading from '@/components/heading';
 import { MarkdownSection } from '@/components/markdown';
@@ -8,7 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
 import { show as decisionShow } from '@/routes/decisions';
-import { destroy, edit, exportMethod, index } from '@/routes/projects';
+import {
+    destroy,
+    edit,
+    exportMethod,
+    index,
+    timeline,
+} from '@/routes/projects';
 import { show as prototypeShow } from '@/routes/prototypes';
 import { show as securityShow } from '@/routes/security-notes';
 import { show as vettingShow } from '@/routes/vetting';
@@ -104,6 +110,12 @@ export default function ShowProject({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                        <Button asChild variant="outline">
+                            <Link href={timeline(project.id)}>
+                                <History /> Timeline
+                            </Link>
+                        </Button>
+
                         <MarkdownExport
                             downloadUrl={exportMethod(project.id).url}
                         />

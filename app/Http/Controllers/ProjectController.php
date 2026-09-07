@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\BuildProjectTimeline;
 use App\Actions\RenderProjectMarkdown;
 use App\Concerns\RendersMarkdown;
 use App\Http\Requests\Projects\StoreProjectRequest;
@@ -87,6 +88,17 @@ class ProjectController extends Controller
                     'updated_at' => $note->updated_at,
                 ])
                 ->all(),
+        ]);
+    }
+
+    /**
+     * The project's story in one order, newest first.
+     */
+    public function timeline(Project $project, BuildProjectTimeline $build): Response
+    {
+        return Inertia::render('projects/timeline', [
+            'project' => $project,
+            'events' => $build($project),
         ]);
     }
 
