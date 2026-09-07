@@ -21,6 +21,14 @@ class ProjectFactory extends Factory
             'name' => fake()->unique()->sentence(2),
             'prefix' => strtoupper(fake()->unique()->lexify('???')),
             'description' => fake()->paragraph(),
+            'archived_at' => null,
         ];
+    }
+
+    public function archived(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'archived_at' => now()->subMonth(),
+        ]);
     }
 }

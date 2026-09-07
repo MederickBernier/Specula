@@ -24,6 +24,9 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 
     Route::resource('projects', ProjectController::class);
 
+    Route::patch('projects/{project}/archive', [ProjectController::class, 'archive'])
+        ->name('projects.archive');
+
     Route::post('projects/{project}/notes', [ProjectNoteController::class, 'store'])
         ->name('projects.notes.store');
     Route::put('project-notes/{projectNote}', [ProjectNoteController::class, 'update'])

@@ -11,6 +11,7 @@ use App\Http\Requests\Vetting\StoreVettingItemRequest;
 use App\Http\Requests\Vetting\UpdateVettingItemRequest;
 use App\Models\VettingItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,13 +24,18 @@ class VettingItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $project = $this->projectFilter($request);
+
         return Inertia::render('vetting/index', [
             'items' => VettingItem::query()
+                ->tap(fn ($query) => $this->scopeToProject($query, $project))
                 ->orderByDesc('date_raised')
                 ->orderByDesc('id')
                 ->get(['id', 'title', 'source_type', 'status', 'date_raised', 'date_resolved']),
+            'projectFilters' => $this->projectFilterOptions(),
+            'projectFilter' => $project ?? '',
             'statuses' => VettingStatus::options(),
             'sourceTypes' => VettingSourceType::options(),
         ]);

@@ -12,6 +12,8 @@ export type RadarItem = {
     feed_source: { id: number; name: string } | null;
     /** Whether this item has already produced a vetting item. */
     promoted?: boolean;
+    /** Whether this item has already produced a prototype. */
+    prototyped?: boolean;
 };
 
 export type FeedSource = {

@@ -39,8 +39,12 @@ class RadarItemController extends Controller
         return Inertia::render('radar/index', [
             'items' => RadarItem::query()
                 ->with('feedSource:id,name')
-                ->withExists(['outgoingItemLinks as promoted' => fn ($query) => $query
-                    ->where('target_type', 'vetting_item')])
+                ->withExists([
+                    'outgoingItemLinks as promoted' => fn ($query) => $query
+                        ->where('target_type', 'vetting_item'),
+                    'outgoingItemLinks as prototyped' => fn ($query) => $query
+                        ->where('target_type', 'prototype'),
+                ])
                 ->when($status, fn ($query) => $query->where('triage_status', $status))
                 ->when($status === null, fn ($query) => $query->visible())
                 ->when($feedId > 0, fn ($query) => $query->where('feed_source_id', $feedId))
@@ -92,25 +96,38 @@ class RadarItemController extends Controller
     }
 
     /**
-     * Raise a vetting item from this radar item and link the two.
+     * Turn this radar item into work: a proposal to assess, or a spike to run.
      */
-    public function promote(RadarItem $radarItem, PromoteRadarItem $promote): RedirectResponse
+    public function promote(Request $request, RadarItem $radarItem, PromoteRadarItem $promote): RedirectResponse
     {
-        if ($promote->alreadyPromoted($radarItem)) {
+        $target = $request->string('target')->toString() === 'prototype'
+            ? 'prototype'
+            : 'vetting_item';
+
+        if ($promote->alreadyPromoted($radarItem, $target)) {
             Inertia::flash('toast', [
                 'type' => 'info',
-                'message' => __('That item is already in the vetting log.'),
+                'message' => $target === 'prototype'
+                    ? __('That item already has a prototype.')
+                    : __('That item is already in the vetting log.'),
             ]);
 
             return back();
         }
 
-        $vettingItem = $promote($radarItem->load('feedSource'));
+        $radarItem->load('feedSource');
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => __('Raised in the vetting log.'),
-        ]);
+        if ($target === 'prototype') {
+            $prototype = $promote->toPrototype($radarItem);
+
+            Inertia::flash('toast', ['type' => 'success', 'message' => __('Prototype planned.')]);
+
+            return to_route('prototypes.edit', $prototype);
+        }
+
+        $vettingItem = $promote->toVettingItem($radarItem);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Raised in the vetting log.')]);
 
         return to_route('vetting.edit', $vettingItem);
     }

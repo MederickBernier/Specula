@@ -1,16 +1,20 @@
-import { Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Form, Head, Link, router } from '@inertiajs/react';
+import { Archive, ArchiveRestore, Plus } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
-import { create, index, show } from '@/routes/projects';
+import { archive, create, index, show } from '@/routes/projects';
 import type { ProjectSummary } from './types';
 
 export default function ProjectsIndex({
     projects,
+    showingArchived,
+    archivedCount,
 }: {
     projects: ProjectSummary[];
+    showingArchived: boolean;
+    archivedCount: number;
 }) {
     const { canWrite } = usePermissions();
 
@@ -25,13 +29,38 @@ export default function ProjectsIndex({
                         description="Everything filed under one body of work"
                     />
 
-                    {canWrite && (
-                        <Button asChild>
-                            <Link href={create()}>
-                                <Plus /> New project
-                            </Link>
-                        </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {(archivedCount > 0 || showingArchived) && (
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    router.get(
+                                        index().url,
+                                        showingArchived ? {} : { archived: 1 },
+                                        { preserveScroll: true },
+                                    )
+                                }
+                            >
+                                {showingArchived ? (
+                                    <>
+                                        <ArchiveRestore /> Show active
+                                    </>
+                                ) : (
+                                    <>
+                                        <Archive /> Archived ({archivedCount})
+                                    </>
+                                )}
+                            </Button>
+                        )}
+
+                        {canWrite && !showingArchived && (
+                            <Button asChild>
+                                <Link href={create()}>
+                                    <Plus /> New project
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
                 {projects.length === 0 ? (
@@ -58,6 +87,38 @@ export default function ProjectsIndex({
                                     >
                                         {project.name}
                                     </Link>
+
+                                    {canWrite && (
+                                        <Form
+                                            {...archive.form(project.id)}
+                                            options={{ preserveScroll: true }}
+                                            className="ml-auto"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="archived"
+                                                value={
+                                                    showingArchived ? '0' : '1'
+                                                }
+                                            />
+                                            <Button
+                                                type="submit"
+                                                variant="ghost"
+                                                size="icon"
+                                                aria-label={
+                                                    showingArchived
+                                                        ? `Restore ${project.name}`
+                                                        : `Archive ${project.name}`
+                                                }
+                                            >
+                                                {showingArchived ? (
+                                                    <ArchiveRestore />
+                                                ) : (
+                                                    <Archive />
+                                                )}
+                                            </Button>
+                                        </Form>
+                                    )}
                                 </div>
 
                                 <dl className="grid grid-cols-5 gap-2 text-center text-sm text-muted-foreground">

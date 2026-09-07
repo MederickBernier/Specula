@@ -6,6 +6,7 @@ use App\Concerns\RendersMarkdown;
 use App\Http\Requests\Projects\StoreProjectRequest;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,13 +17,19 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $showArchived = $request->boolean('archived');
+
         return Inertia::render('projects/index', [
             'projects' => Project::query()
                 ->withCount(['decisionRecords', 'vettingItems', 'prototypes', 'securityNotes', 'notes'])
+                ->when($showArchived, fn ($query) => $query->archived())
+                ->when(! $showArchived, fn ($query) => $query->active())
                 ->orderBy('name')
                 ->get(),
+            'showingArchived' => $showArchived,
+            'archivedCount' => Project::query()->archived()->count(),
         ]);
     }
 
@@ -104,6 +111,27 @@ class ProjectController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Project updated.')]);
 
         return to_route('projects.show', $project);
+    }
+
+    /**
+     * Put a finished project away, or bring it back.
+     *
+     * Archiving only tidies the list. The records filed under the project keep
+     * their link to it, and it can still be picked in a form, marked as
+     * archived, since work occasionally comes back from the dead.
+     */
+    public function archive(Request $request, Project $project): RedirectResponse
+    {
+        $archived = $request->boolean('archived');
+
+        $project->forceFill(['archived_at' => $archived ? now() : null])->save();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $archived ? __('Project archived.') : __('Project restored.'),
+        ]);
+
+        return back();
     }
 
     /**

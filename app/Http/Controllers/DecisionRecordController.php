@@ -11,6 +11,7 @@ use App\Http\Requests\Decisions\StoreDecisionRecordRequest;
 use App\Http\Requests\Decisions\UpdateDecisionRecordRequest;
 use App\Models\DecisionRecord;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,14 +25,19 @@ class DecisionRecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $project = $this->projectFilter($request);
+
         return Inertia::render('decisions/index', [
             'records' => DecisionRecord::query()
+                ->tap(fn ($query) => $this->scopeToProject($query, $project))
                 ->orderBy('project_prefix')
                 ->orderBy('category')
                 ->orderBy('sequence')
                 ->get(['id', 'project_prefix', 'category', 'sequence', 'title', 'status', 'updated_at']),
+            'projectFilters' => $this->projectFilterOptions(),
+            'projectFilter' => $project ?? '',
         ]);
     }
 

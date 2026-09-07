@@ -1,10 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
+import ProjectFilter from '@/components/project-filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
 import { create, index, show } from '@/routes/decisions';
+import type { SelectOption } from '@/types';
 import type { DecisionRecordSummary } from './types';
 
 const statusLabels: Record<string, string> = {
@@ -16,8 +18,12 @@ const statusLabels: Record<string, string> = {
 
 export default function DecisionsIndex({
     records,
+    projectFilters,
+    projectFilter,
 }: {
     records: DecisionRecordSummary[];
+    projectFilters: SelectOption[];
+    projectFilter: string;
 }) {
     const { canWrite } = usePermissions();
 
@@ -40,6 +46,12 @@ export default function DecisionsIndex({
                         </Button>
                     )}
                 </div>
+
+                <ProjectFilter
+                    url={index().url}
+                    options={projectFilters}
+                    value={projectFilter}
+                />
 
                 {records.length === 0 ? (
                     <p className="text-sm text-muted-foreground">

@@ -13,6 +13,7 @@ use App\Http\Requests\Security\StoreSecurityNoteRequest;
 use App\Http\Requests\Security\UpdateSecurityNoteRequest;
 use App\Models\SecurityNote;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,16 +26,21 @@ class SecurityNoteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $project = $this->projectFilter($request);
+
         return Inertia::render('security/index', [
             'notes' => SecurityNote::query()
+                ->tap(fn ($query) => $this->scopeToProject($query, $project))
                 ->orderByDesc('date_flagged')
                 ->orderByDesc('id')
                 ->get([
                     'id', 'title', 'source', 'category', 'severity',
                     'is_issue', 'routed_to', 'status', 'date_flagged', 'date_resolved',
                 ]),
+            'projectFilters' => $this->projectFilterOptions(),
+            'projectFilter' => $project ?? '',
             ...$this->formOptions(),
         ]);
     }

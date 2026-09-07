@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
+import ProjectFilter from '@/components/project-filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -14,10 +15,14 @@ function labelFor(options: SelectOption[], value: string) {
 
 export default function VettingIndex({
     items,
+    projectFilters,
+    projectFilter,
     statuses,
     sourceTypes,
 }: {
     items: VettingItemSummary[];
+    projectFilters: SelectOption[];
+    projectFilter: string;
     statuses: SelectOption[];
     sourceTypes: SelectOption[];
 }) {
@@ -42,6 +47,12 @@ export default function VettingIndex({
                         </Button>
                     )}
                 </div>
+
+                <ProjectFilter
+                    url={index().url}
+                    options={projectFilters}
+                    value={projectFilter}
+                />
 
                 {items.length === 0 ? (
                     <p className="text-sm text-muted-foreground">

@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
+import ProjectFilter from '@/components/project-filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -18,10 +19,14 @@ function labelFor(options: SelectOption[], value: string | null) {
 
 export default function PrototypesIndex({
     prototypes,
+    projectFilters,
+    projectFilter,
     statuses,
     confidenceLevels,
 }: {
     prototypes: PrototypeSummary[];
+    projectFilters: SelectOption[];
+    projectFilter: string;
     statuses: SelectOption[];
     confidenceLevels: SelectOption[];
 }) {
@@ -46,6 +51,12 @@ export default function PrototypesIndex({
                         </Button>
                     )}
                 </div>
+
+                <ProjectFilter
+                    url={index().url}
+                    options={projectFilters}
+                    value={projectFilter}
+                />
 
                 {prototypes.length === 0 ? (
                     <p className="text-sm text-muted-foreground">

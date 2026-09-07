@@ -11,6 +11,7 @@ use App\Http\Requests\Prototypes\StorePrototypeRequest;
 use App\Http\Requests\Prototypes\UpdatePrototypeRequest;
 use App\Models\Prototype;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,16 +24,21 @@ class PrototypeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $project = $this->projectFilter($request);
+
         return Inertia::render('prototypes/index', [
             'prototypes' => Prototype::query()
+                ->tap(fn ($query) => $this->scopeToProject($query, $project))
                 ->orderByDesc('date_started')
                 ->orderByDesc('id')
                 ->get([
                     'id', 'title', 'status', 'confidence_level',
                     'is_reusable', 'date_started', 'date_completed',
                 ]),
+            'projectFilters' => $this->projectFilterOptions(),
+            'projectFilter' => $project ?? '',
             ...$this->formOptions(),
         ]);
     }
