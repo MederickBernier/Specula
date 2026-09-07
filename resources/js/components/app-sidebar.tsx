@@ -7,6 +7,7 @@ import {
     FolderGit2,
     FolderKanban,
     LayoutGrid,
+    ChartNoAxesColumn,
     Radar,
     Search,
     ShieldAlert,
@@ -24,7 +25,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard, search } from '@/routes';
+import { dashboard, metrics, search } from '@/routes';
 import { index as decisionsIndex } from '@/routes/decisions';
 import { index as projectsIndex } from '@/routes/projects';
 import { index as prototypesIndex } from '@/routes/prototypes';
@@ -38,6 +39,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Practice',
+        href: metrics(),
+        icon: ChartNoAxesColumn,
     },
     {
         title: 'Search',

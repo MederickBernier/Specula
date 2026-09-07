@@ -3,8 +3,9 @@
 namespace App\Enums;
 
 use App\Concerns\HasSelectOptions;
+use App\Contracts\Labelled;
 
-enum VettingSourceType: string
+enum VettingSourceType: string implements Labelled
 {
     use HasSelectOptions;
 

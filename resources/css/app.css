@@ -141,3 +141,37 @@
         @apply bg-background text-foreground;
     }
 }
+
+/*
+ * Chart palette. Slots and surfaces come from the data-viz reference palette
+ * and were run through its validator: all checks pass in both modes on the
+ * adjacent pairlist these charts use. Three light-mode slots sit under 3:1
+ * against the surface, so every chart here names and counts its segments
+ * rather than relying on colour.
+ */
+.viz-root {
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-4: #eda100;
+    --series-5: #e87ba4;
+    --surface-muted: color-mix(in oklab, currentColor 12%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light'])) .viz-root {
+        --series-1: #3987e5;
+        --series-2: #d95926;
+        --series-3: #199e70;
+        --series-4: #c98500;
+        --series-5: #d55181;
+    }
+}
+
+:root[data-theme='dark'] .viz-root {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+}

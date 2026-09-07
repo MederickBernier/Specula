@@ -5,6 +5,7 @@ use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
 use App\Http\Controllers\FeedSourceController;
 use App\Http\Controllers\ItemLinkController;
+use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\PrototypeController;
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('search', SearchController::class)->name('search');
+    Route::get('metrics', MetricsController::class)->name('metrics');
 
     Route::resource('projects', ProjectController::class);
 

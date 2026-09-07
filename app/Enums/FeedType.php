@@ -3,8 +3,9 @@
 namespace App\Enums;
 
 use App\Concerns\HasSelectOptions;
+use App\Contracts\Labelled;
 
-enum FeedType: string
+enum FeedType: string implements Labelled
 {
     use HasSelectOptions;
 

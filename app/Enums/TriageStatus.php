@@ -3,8 +3,9 @@
 namespace App\Enums;
 
 use App\Concerns\HasSelectOptions;
+use App\Contracts\Labelled;
 
-enum TriageStatus: string
+enum TriageStatus: string implements Labelled
 {
     use HasSelectOptions;
 

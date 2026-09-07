@@ -3,8 +3,9 @@
 namespace App\Enums;
 
 use App\Concerns\HasSelectOptions;
+use App\Contracts\Labelled;
 
-enum PrototypeStatus: string
+enum PrototypeStatus: string implements Labelled
 {
     use HasSelectOptions;
 
