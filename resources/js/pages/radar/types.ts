@@ -24,3 +24,9 @@ export type FeedSource = {
     last_error: string | null;
     radar_items_count: number;
 };
+
+export type SavedSearch = {
+    id: number;
+    name: string;
+    filters: { q?: string; feed?: string; status?: string };
+};

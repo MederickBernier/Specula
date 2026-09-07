@@ -69,6 +69,9 @@ class RadarItemController extends Controller
                 'q' => $search,
                 'feed' => $feedId > 0 ? (string) $feedId : '',
             ],
+            'savedSearches' => $request->user()?->savedSearches()
+                ->orderBy('name')
+                ->get(['id', 'name', 'filters']) ?? [],
             'pendingCount' => RadarItem::query()->where('triage_status', TriageStatus::Pending)->count(),
         ]);
     }

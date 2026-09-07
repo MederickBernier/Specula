@@ -7,6 +7,7 @@ use App\Http\Controllers\FeedSourceController;
 use App\Http\Controllers\ItemLinkController;
 use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\RadarItemController;
+use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\SecurityNoteController;
 use App\Http\Controllers\VettingItemController;
 use Illuminate\Support\Facades\Route;
@@ -61,3 +62,13 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+// Saved radar filters. Outside the can-write group: a saved search is a private
+// view of data the account can already read, so a read-only account keeps its
+// own shortcuts without gaining the ability to change anything.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('radar/saved-searches', [SavedSearchController::class, 'store'])
+        ->name('radar.saved-searches.store');
+    Route::delete('radar/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])
+        ->name('radar.saved-searches.destroy');
+});

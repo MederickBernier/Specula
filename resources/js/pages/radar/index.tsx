@@ -11,8 +11,9 @@ import { index, show } from '@/routes/radar';
 import { index as feedsIndex } from '@/routes/radar/feeds';
 import type { Paginated, SelectOption } from '@/types';
 import PromoteButton from './promote-button';
+import SavedSearches from './saved-searches';
 import TriageForm from './triage-form';
-import type { RadarItem } from './types';
+import type { RadarItem, SavedSearch } from './types';
 
 type Filters = { status: string | null; q: string; feed: string };
 
@@ -21,12 +22,14 @@ export default function RadarIndex({
     statuses,
     feeds,
     filters,
+    savedSearches,
     pendingCount,
 }: {
     items: Paginated<RadarItem>;
     statuses: SelectOption[];
     feeds: SelectOption[];
     filters: Filters;
+    savedSearches: SavedSearch[];
     pendingCount: number;
 }) {
     const [search, setSearch] = useState(filters.q);
@@ -142,6 +145,12 @@ export default function RadarIndex({
                         </Button>
                     )}
                 </div>
+
+                <SavedSearches
+                    savedSearches={savedSearches}
+                    filters={filters}
+                    isFiltered={isFiltered}
+                />
 
                 {items.data.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
