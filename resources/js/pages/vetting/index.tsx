@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { create, index, show } from '@/routes/vetting';
 import type { SelectOption } from '@/types';
 import type { VettingItemSummary } from './types';
@@ -20,6 +21,8 @@ export default function VettingIndex({
     statuses: SelectOption[];
     sourceTypes: SelectOption[];
 }) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title="Vetting log" />
@@ -31,11 +34,13 @@ export default function VettingIndex({
                         description="Proposals from intake through to a verdict"
                     />
 
-                    <Button asChild>
-                        <Link href={create()}>
-                            <Plus /> New item
-                        </Link>
-                    </Button>
+                    {canWrite && (
+                        <Button asChild>
+                            <Link href={create()}>
+                                <Plus /> New item
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 {items.length === 0 ? (

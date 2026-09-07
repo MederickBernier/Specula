@@ -4,10 +4,12 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { usePermissions } from '@/hooks/use-permissions';
 import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { index as usersIndex } from '@/routes/users';
 import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
@@ -30,6 +32,16 @@ const sidebarNavItems: NavItem[] = [
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
+    const { isAdmin } = usePermissions();
+
+    // Account management only exists for administrators, and the route is
+    // guarded server-side regardless of what this renders.
+    const navItems: NavItem[] = isAdmin
+        ? [
+              ...sidebarNavItems,
+              { title: 'Accounts', href: usersIndex(), icon: null },
+          ]
+        : sidebarNavItems;
 
     return (
         <div className="px-4 py-6">
@@ -44,7 +56,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                         className="flex flex-col space-y-1 space-x-0"
                         aria-label="Settings"
                     >
-                        {sidebarNavItems.map((item, index) => (
+                        {navItems.map((item, index) => (
                             <Button
                                 key={`${toUrl(item.href)}-${index}`}
                                 size="sm"

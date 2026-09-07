@@ -2,7 +2,7 @@ import { Head } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { index, update } from '@/routes/security-notes';
 import SecurityForm from './security-form';
-import type {SecurityFormOptions} from './security-form';
+import type { SecurityFormOptions } from './security-form';
 import type { SecurityNote } from './types';
 
 export default function EditSecurityNote({

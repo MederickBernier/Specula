@@ -3,6 +3,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
+import { usePermissions } from '@/hooks/use-permissions';
 import { triage } from '@/routes/radar';
 import type { SelectOption } from '@/types';
 import type { RadarItem } from './types';
@@ -20,12 +21,23 @@ export default function TriageForm({
     item: RadarItem;
     statuses: SelectOption[];
 }) {
+    const { canWrite } = usePermissions();
+
     const form = useForm({
         triage_status: item.triage_status,
         relevance_note: item.relevance_note ?? '',
     });
 
     const { data, setData, processing, errors } = form;
+
+    if (!canWrite) {
+        return (
+            <p className="text-sm text-muted-foreground">
+                {statuses.find((status) => status.value === item.triage_status)
+                    ?.label ?? item.triage_status}
+            </p>
+        );
+    }
 
     return (
         <form

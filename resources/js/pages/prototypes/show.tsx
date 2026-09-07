@@ -5,6 +5,7 @@ import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, edit, index } from '@/routes/prototypes';
 import type { ItemLinkProps } from '@/types';
 import type { Prototype } from './types';
@@ -25,6 +26,8 @@ export default function ShowPrototype({
     html,
     ...links
 }: ShowProps) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title={prototype.title} />
@@ -33,19 +36,21 @@ export default function ShowPrototype({
                 <div className="flex items-start justify-between gap-4">
                     <Heading title={prototype.title} />
 
-                    <div className="flex items-center gap-2">
-                        <Button asChild variant="outline">
-                            <Link href={edit(prototype.id)}>
-                                <Pencil /> Edit
-                            </Link>
-                        </Button>
-
-                        <Form {...destroy.form(prototype.id)}>
-                            <Button type="submit" variant="destructive">
-                                <Trash2 /> Delete
+                    {canWrite && (
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="outline">
+                                <Link href={edit(prototype.id)}>
+                                    <Pencil /> Edit
+                                </Link>
                             </Button>
-                        </Form>
-                    </div>
+
+                            <Form {...destroy.form(prototype.id)}>
+                                <Button type="submit" variant="destructive">
+                                    <Trash2 /> Delete
+                                </Button>
+                            </Form>
+                        </div>
+                    )}
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-4">

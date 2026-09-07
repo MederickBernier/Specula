@@ -6,10 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
+import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, store } from '@/routes/item-links';
 import type { ItemLink, ItemLinkProps } from '@/types';
 
-function LinkRows({ heading, links }: { heading: string; links: ItemLink[] }) {
+function LinkRows({
+    heading,
+    links,
+    canWrite,
+}: {
+    heading: string;
+    links: ItemLink[];
+    canWrite: boolean;
+}) {
     return (
         <div className="space-y-2">
             <h3 className="font-medium">{heading}</h3>
@@ -53,19 +62,21 @@ function LinkRows({ heading, links }: { heading: string; links: ItemLink[] }) {
                                 )}
                             </div>
 
-                            <Form
-                                {...destroy.form(link.id)}
-                                options={{ preserveScroll: true }}
-                            >
-                                <Button
-                                    type="submit"
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label="Remove link"
+                            {canWrite && (
+                                <Form
+                                    {...destroy.form(link.id)}
+                                    options={{ preserveScroll: true }}
                                 >
-                                    <Trash2 />
-                                </Button>
-                            </Form>
+                                    <Button
+                                        type="submit"
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label="Remove link"
+                                    >
+                                        <Trash2 />
+                                    </Button>
+                                </Form>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -84,6 +95,7 @@ export default function ItemLinks({
     itemLinkTypes,
     itemLinkSource,
 }: ItemLinkProps) {
+    const { canWrite } = usePermissions();
     const [module, setModule] = useState(itemLinkTargets[0]?.type ?? '');
 
     const records =
@@ -119,10 +131,15 @@ export default function ItemLinks({
             <LinkRows
                 heading="This record points at"
                 links={itemLinks.outgoing}
+                canWrite={canWrite}
             />
-            <LinkRows heading="Pointed at by" links={itemLinks.incoming} />
+            <LinkRows
+                heading="Pointed at by"
+                links={itemLinks.incoming}
+                canWrite={canWrite}
+            />
 
-            {itemLinkTargets.length > 0 && (
+            {canWrite && itemLinkTargets.length > 0 && (
                 <form
                     onSubmit={(event) => {
                         event.preventDefault();

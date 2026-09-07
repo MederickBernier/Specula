@@ -40,6 +40,10 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
+                // Drives which controls the frontend renders. The real
+                // enforcement is the can-write middleware, not this.
+                'canWrite' => $request->user()?->canWrite() ?? false,
+                'isAdmin' => (bool) $request->user()?->is_admin,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

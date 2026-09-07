@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
+use App\Http\Controllers\Settings\UserController;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
@@ -24,4 +25,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
+});
+
+// Account management. Admin-only, and behind can-write so a read-only account
+// can never reach it even if it were somehow also flagged as an administrator.
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    Route::get('settings/users', [UserController::class, 'index'])->name('users.index');
+
+    Route::middleware('can-write')->group(function () {
+        Route::post('settings/users', [UserController::class, 'store'])->name('users.store');
+        Route::patch('settings/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('settings/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
 });

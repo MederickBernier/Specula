@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// can-write is applied to the whole group rather than per route: every write in
+// these modules is an unsafe HTTP method, so read-only accounts are blocked
+// here once, including for modules added later.
+Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('decisions', DecisionRecordController::class)

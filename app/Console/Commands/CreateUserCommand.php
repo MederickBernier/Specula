@@ -15,7 +15,8 @@ use function Laravel\Prompts\text;
 #[Signature('specula:create-user
             {--name= : The user\'s full name}
             {--email= : The user\'s email address}
-            {--admin : Grant account-creation rights}')]
+            {--admin : Grant account-creation rights}
+            {--read-only : Create an account that can read everything but change nothing}')]
 #[Description('Create a Specula user account')]
 class CreateUserCommand extends Command
 {
@@ -48,10 +49,15 @@ class CreateUserCommand extends Command
         $user->email = $email;
         $user->password = $plainPassword;
         $user->is_admin = (bool) $this->option('admin');
+        $user->is_read_only = (bool) $this->option('read-only');
         $user->email_verified_at = now();
         $user->save();
 
-        $this->info("Created {$user->email}".($user->is_admin ? ' (admin)' : ''));
+        $this->info("Created {$user->email}".match (true) {
+            $user->is_admin => ' (admin)',
+            $user->is_read_only => ' (read-only)',
+            default => '',
+        });
 
         return self::SUCCESS;
     }

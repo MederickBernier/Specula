@@ -4,6 +4,7 @@ import Heading from '@/components/heading';
 import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, edit, index } from '@/routes/vetting';
 import type { ItemLinkProps } from '@/types';
 import type { VettingItem } from './types';
@@ -18,6 +19,8 @@ type ShowProps = ItemLinkProps & {
 };
 
 export default function ShowVettingItem({ item, html, ...links }: ShowProps) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title={item.title} />
@@ -26,19 +29,21 @@ export default function ShowVettingItem({ item, html, ...links }: ShowProps) {
                 <div className="flex items-start justify-between gap-4">
                     <Heading title={item.title} />
 
-                    <div className="flex items-center gap-2">
-                        <Button asChild variant="outline">
-                            <Link href={edit(item.id)}>
-                                <Pencil /> Edit
-                            </Link>
-                        </Button>
-
-                        <Form {...destroy.form(item.id)}>
-                            <Button type="submit" variant="destructive">
-                                <Trash2 /> Delete
+                    {canWrite && (
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="outline">
+                                <Link href={edit(item.id)}>
+                                    <Pencil /> Edit
+                                </Link>
                             </Button>
-                        </Form>
-                    </div>
+
+                            <Form {...destroy.form(item.id)}>
+                                <Button type="submit" variant="destructive">
+                                    <Trash2 /> Delete
+                                </Button>
+                            </Form>
+                        </div>
+                    )}
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-4">

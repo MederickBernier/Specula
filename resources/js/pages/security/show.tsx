@@ -5,6 +5,7 @@ import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, edit, index } from '@/routes/security-notes';
 import type { ItemLinkProps } from '@/types';
 import type { SecurityNote } from './types';
@@ -19,6 +20,8 @@ type ShowProps = ItemLinkProps & {
 };
 
 export default function ShowSecurityNote({ note, html, ...links }: ShowProps) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title={note.title} />
@@ -32,19 +35,21 @@ export default function ShowSecurityNote({ note, html, ...links }: ShowProps) {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <Button asChild variant="outline">
-                            <Link href={edit(note.id)}>
-                                <Pencil /> Edit
-                            </Link>
-                        </Button>
-
-                        <Form {...destroy.form(note.id)}>
-                            <Button type="submit" variant="destructive">
-                                <Trash2 /> Delete
+                    {canWrite && (
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="outline">
+                                <Link href={edit(note.id)}>
+                                    <Pencil /> Edit
+                                </Link>
                             </Button>
-                        </Form>
-                    </div>
+
+                            <Form {...destroy.form(note.id)}>
+                                <Button type="submit" variant="destructive">
+                                    <Trash2 /> Delete
+                                </Button>
+                            </Form>
+                        </div>
+                    )}
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-3 lg:grid-cols-6">

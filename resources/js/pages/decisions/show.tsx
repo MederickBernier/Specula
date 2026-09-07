@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
+import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, edit, index } from '@/routes/decisions';
 import links from '@/routes/decisions/links';
 import type { ItemLinkProps, SelectOption } from '@/types';
@@ -130,6 +131,8 @@ export default function ShowDecision({
     linkTargets,
     ...crossModuleLinks
 }: ShowProps) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title={record.document_id} />
@@ -140,19 +143,21 @@ export default function ShowDecision({
                         title={`${record.document_id} — ${record.title}`}
                     />
 
-                    <div className="flex items-center gap-2">
-                        <Button asChild variant="outline">
-                            <Link href={edit(record.id)}>
-                                <Pencil /> Edit
-                            </Link>
-                        </Button>
-
-                        <Form {...destroy.form(record.id)}>
-                            <Button type="submit" variant="destructive">
-                                <Trash2 /> Delete
+                    {canWrite && (
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="outline">
+                                <Link href={edit(record.id)}>
+                                    <Pencil /> Edit
+                                </Link>
                             </Button>
-                        </Form>
-                    </div>
+
+                            <Form {...destroy.form(record.id)}>
+                                <Button type="submit" variant="destructive">
+                                    <Trash2 /> Delete
+                                </Button>
+                            </Form>
+                        </div>
+                    )}
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-4">

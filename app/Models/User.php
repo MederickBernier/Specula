@@ -3,13 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Carbon\CarbonImmutable;
 
 /**
  * @property int $id
@@ -17,7 +17,8 @@ use Carbon\CarbonImmutable;
  * @property string $email
  * @property CarbonImmutable|null $email_verified_at
  * @property string $password
- * @property bool $is_admin;
+ * @property bool $is_admin
+ * @property bool $is_read_only
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property CarbonImmutable|null $two_factor_confirmed_at
@@ -43,6 +44,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_read_only' => 'boolean',
         ];
+    }
+
+    /**
+     * Whether this account may change data, as opposed to only reading it.
+     */
+    public function canWrite(): bool
+    {
+        return ! $this->is_read_only;
     }
 }

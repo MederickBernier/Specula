@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
+import { usePermissions } from '@/hooks/use-permissions';
 import { index as radarIndex } from '@/routes/radar';
 import {
     destroy,
@@ -121,6 +122,7 @@ export default function FeedsIndex({
     feeds: FeedSource[];
     feedTypes: SelectOption[];
 }) {
+    const { canWrite } = usePermissions();
     const [editing, setEditing] = useState<number | null>(null);
 
     return (
@@ -141,9 +143,11 @@ export default function FeedsIndex({
                     </Button>
                 </div>
 
-                <div className="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
-                    <FeedForm feedTypes={feedTypes} />
-                </div>
+                {canWrite && (
+                    <div className="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                        <FeedForm feedTypes={feedTypes} />
+                    </div>
+                )}
 
                 {feeds.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
@@ -189,53 +193,59 @@ export default function FeedsIndex({
                                         )}
                                     </div>
 
-                                    <div className="flex items-center gap-2">
-                                        <Form
-                                            {...fetchFeed.form(feed.id)}
-                                            options={{ preserveScroll: true }}
-                                        >
-                                            <Button
-                                                type="submit"
-                                                variant="outline"
-                                                size="sm"
+                                    {canWrite && (
+                                        <div className="flex items-center gap-2">
+                                            <Form
+                                                {...fetchFeed.form(feed.id)}
+                                                options={{
+                                                    preserveScroll: true,
+                                                }}
                                             >
-                                                <RefreshCw /> Fetch now
-                                            </Button>
-                                        </Form>
+                                                <Button
+                                                    type="submit"
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    <RefreshCw /> Fetch now
+                                                </Button>
+                                            </Form>
 
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() =>
-                                                setEditing(
-                                                    editing === feed.id
-                                                        ? null
-                                                        : feed.id,
-                                                )
-                                            }
-                                        >
-                                            {editing === feed.id
-                                                ? 'Cancel'
-                                                : 'Edit'}
-                                        </Button>
-
-                                        <Form
-                                            {...destroy.form(feed.id)}
-                                            options={{ preserveScroll: true }}
-                                        >
                                             <Button
-                                                type="submit"
                                                 variant="ghost"
-                                                size="icon"
-                                                aria-label={`Remove ${feed.name}`}
+                                                size="sm"
+                                                onClick={() =>
+                                                    setEditing(
+                                                        editing === feed.id
+                                                            ? null
+                                                            : feed.id,
+                                                    )
+                                                }
                                             >
-                                                <Trash2 />
+                                                {editing === feed.id
+                                                    ? 'Cancel'
+                                                    : 'Edit'}
                                             </Button>
-                                        </Form>
-                                    </div>
+
+                                            <Form
+                                                {...destroy.form(feed.id)}
+                                                options={{
+                                                    preserveScroll: true,
+                                                }}
+                                            >
+                                                <Button
+                                                    type="submit"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    aria-label={`Remove ${feed.name}`}
+                                                >
+                                                    <Trash2 />
+                                                </Button>
+                                            </Form>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {editing === feed.id && (
+                                {canWrite && editing === feed.id && (
                                     <FeedForm
                                         feed={feed}
                                         feedTypes={feedTypes}

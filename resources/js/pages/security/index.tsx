@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { create, index, show } from '@/routes/security-notes';
 import type { SelectOption } from '@/types';
 import type { SecurityNoteSummary } from './types';
@@ -38,6 +39,8 @@ export default function SecurityIndex({
     routes: SelectOption[];
     statuses: SelectOption[];
 }) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title="Security posture" />
@@ -49,11 +52,13 @@ export default function SecurityIndex({
                         description="Findings, the triage call on each, and where they were routed"
                     />
 
-                    <Button asChild>
-                        <Link href={create()}>
-                            <Plus /> New note
-                        </Link>
-                    </Button>
+                    {canWrite && (
+                        <Button asChild>
+                            <Link href={create()}>
+                                <Plus /> New note
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 {notes.length === 0 ? (

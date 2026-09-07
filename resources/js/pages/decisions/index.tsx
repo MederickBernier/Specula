@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { create, index, show } from '@/routes/decisions';
 import type { DecisionRecordSummary } from './types';
 
@@ -18,6 +19,8 @@ export default function DecisionsIndex({
 }: {
     records: DecisionRecordSummary[];
 }) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title="Decision records" />
@@ -29,11 +32,13 @@ export default function DecisionsIndex({
                         description="Architecture decisions, their options and their cross-references"
                     />
 
-                    <Button asChild>
-                        <Link href={create()}>
-                            <Plus /> New record
-                        </Link>
-                    </Button>
+                    {canWrite && (
+                        <Button asChild>
+                            <Link href={create()}>
+                                <Plus /> New record
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 {records.length === 0 ? (

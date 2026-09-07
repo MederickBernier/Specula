@@ -36,6 +36,16 @@ class UserFactory extends Factory
     /**
      * Indicate that the model's email address should be unverified.
      */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes): array => ['is_admin' => true]);
+    }
+
+    public function readOnly(): static
+    {
+        return $this->state(fn (array $attributes): array => ['is_read_only' => true]);
+    }
+
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -46,8 +56,9 @@ class UserFactory extends Factory
     /**
      * Indicate that the model has two-factor authentication configured.
      */
-    public function withTwoFactor(): static {
-        return $this->state(fn(array $attributes)=>[
+    public function withTwoFactor(): static
+    {
+        return $this->state(fn (array $attributes) => [
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['code'])),
             'two_factor_confirmed_at' => now(),

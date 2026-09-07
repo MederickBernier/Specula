@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 import { create, index, show } from '@/routes/prototypes';
 import type { SelectOption } from '@/types';
 import type { PrototypeSummary } from './types';
@@ -24,6 +25,8 @@ export default function PrototypesIndex({
     statuses: SelectOption[];
     confidenceLevels: SelectOption[];
 }) {
+    const { canWrite } = usePermissions();
+
     return (
         <>
             <Head title="Prototypes" />
@@ -35,11 +38,13 @@ export default function PrototypesIndex({
                         description="Spikes, what they were meant to prove, and how they landed"
                     />
 
-                    <Button asChild>
-                        <Link href={create()}>
-                            <Plus /> New prototype
-                        </Link>
-                    </Button>
+                    {canWrite && (
+                        <Button asChild>
+                            <Link href={create()}>
+                                <Plus /> New prototype
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 {prototypes.length === 0 ? (
