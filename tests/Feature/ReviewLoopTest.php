@@ -108,15 +108,16 @@ test('the dashboard gathers everything due, oldest first', function () {
     $this->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(function (AssertableInertia $page) {
-            $props = $page->toArray()['props'];
-            $due = $props['queues']['dueForReview'];
+            $attention = collect($page->toArray()['props']['attention']);
 
-            expect($due)->toHaveCount(2)
-                ->and($due[0]['kind'])->toBe('Finding')
-                ->and($due[0]['label'])->toBe('Elapsed deferral')
-                ->and($due[1]['kind'])->toBe('Decision')
-                ->and($due[1]['label'])->toContain('VNG-ARCH-001')
-                ->and(collect($props['stats'])->firstWhere('key', 'review')['value'])->toBe(2);
+            expect($attention->pluck('label')->all())
+                ->toContain('Elapsed deferral')
+                ->toContain('VNG-ARCH-001 — Older decision')
+                // one row for the finding, carrying both reasons
+                ->and($attention->where('label', 'Elapsed deferral'))->toHaveCount(1)
+                ->and($attention->firstWhere('label', 'Elapsed deferral')['why'])
+                ->toContain('which has passed')
+                ->and($attention->where('why', 'Due to be read again'))->toHaveCount(1);
         });
 });
 
@@ -125,8 +126,9 @@ test('something due today counts as due', function () {
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->has('queues.dueForReview', 1));
+        ->assertInertia(fn (AssertableInertia $page) => expect(
+            collect($page->toArray()['props']['attention'])->where('why', 'Due to be read again')
+        )->toHaveCount(1));
 });
 
 test('a finding deferred with no date is flagged separately as open-ended', function () {
@@ -135,9 +137,14 @@ test('a finding deferred with no date is flagged separately as open-ended', func
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->has('queues.deferredFindings', 1)
-            ->where('queues.deferredFindings.0.title', 'No date'));
+        ->assertInertia(fn (AssertableInertia $page) => expect(
+            collect($page->toArray()['props']['attention'])
+                ->filter(fn (array $item): bool => str_contains(
+                    $item['why'],
+                    'Deferred with no date to come back to',
+                ))
+                ->pluck('label')->values()->all()
+        )->toBe(['No date']));
 });
 
 test('a review date links back to the record it belongs to', function () {
@@ -145,6 +152,8 @@ test('a review date links back to the record it belongs to', function () {
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('queues.dueForReview.0.url', route('decisions.show', $record)));
+        ->assertInertia(fn (AssertableInertia $page) => expect(
+            collect($page->toArray()['props']['attention'])
+                ->firstWhere('why', 'Due to be read again')['url']
+        )->toBe(route('decisions.show', $record)));
 });

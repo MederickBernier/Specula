@@ -38,7 +38,12 @@ class FetchFeedSource
         } catch (Throwable $exception) {
             $source->forceFill([
                 'last_fetched_at' => now(),
-                'last_error' => str($exception->getMessage())->limit(200)->value(),
+                // Servers answer errors with HTML often enough that the raw
+                // message is unreadable where it is shown.
+                'last_error' => str(strip_tags($exception->getMessage()))
+                    ->squish()
+                    ->limit(160)
+                    ->value(),
             ])->save();
 
             return 0;

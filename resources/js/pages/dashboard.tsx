@@ -1,20 +1,18 @@
 import { Head, Link } from '@inertiajs/react';
-import {
-    AlertTriangle,
-    CalendarClock,
-    FlaskConical,
-    PauseCircle,
-    RssIcon,
-} from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import type { ReactNode } from 'react';
-import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { dashboard } from '@/routes';
-import { index as feedsIndex } from '@/routes/radar/feeds';
-import { show as securityNote } from '@/routes/security-notes';
-import { show as vettingItem } from '@/routes/vetting';
 
-type Stat = {
+type Attention = {
+    kind: string;
+    label: string;
+    url: string;
+    why: string;
+    at: string | null;
+};
+
+type Count = {
     key: string;
     label: string;
     value: number;
@@ -22,230 +20,245 @@ type Stat = {
     url: string;
 };
 
-type DueItem = {
+type ProjectRow = {
+    id: number;
+    name: string;
+    prefix: string;
+    url: string;
+    open: { label: string; value: number }[];
+};
+
+type Activity = {
     kind: string;
     label: string;
     url: string;
-    due_at: string | null;
+    state: string | null;
+    at: string;
 };
 
-type Queues = {
-    dueForReview: DueItem[];
-    severeFindings: {
-        id: number;
-        title: string;
-        severity: string;
-        status: string;
-        date_flagged: string;
-    }[];
-    needsPrototype: { id: number; title: string; date_raised: string }[];
-    deferredFindings: { id: number; title: string; date_flagged: string }[];
-    staleFeeds: { id: number; name: string; last_error: string }[];
+/**
+ * A finding outranks a review, which outranks a feed that stopped answering,
+ * so the colour follows the kind rather than the position in the list.
+ */
+const kindTone: Record<string, string> = {
+    Finding: 'border-l-destructive',
+    Decision: 'border-l-primary',
+    Proposal: 'border-l-primary',
+    Feed: 'border-l-muted-foreground',
 };
 
-function QueueCard({
+function Section({
     title,
-    icon,
-    empty,
+    action,
     children,
 }: {
     title: string;
-    icon: ReactNode;
-    empty: boolean;
+    action?: ReactNode;
     children: ReactNode;
 }) {
     return (
-        <section className="space-y-3 rounded-xl border border-sidebar-border/70 p-4">
-            <h2 className="flex items-center gap-2 font-medium">
-                {icon} {title}
-            </h2>
-
-            {empty ? (
-                <p className="text-sm text-muted-foreground">
-                    Nothing right now.
-                </p>
-            ) : (
-                children
-            )}
+        <section className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+                <h2 className="font-medium">{title}</h2>
+                {action}
+            </div>
+            {children}
         </section>
     );
 }
 
+function relativeDay(value: string) {
+    const then = new Date(value);
+    const days = Math.round((Date.now() - then.getTime()) / 86_400_000);
+
+    if (days <= 0) {
+        return 'today';
+    }
+
+    if (days === 1) {
+        return 'yesterday';
+    }
+
+    if (days < 30) {
+        return `${days} days ago`;
+    }
+
+    return then.toLocaleDateString();
+}
+
 export default function Dashboard({
-    stats,
-    queues,
+    attention,
+    counts,
+    projects,
+    activity,
 }: {
-    stats: Stat[];
-    queues: Queues;
+    attention: Attention[];
+    counts: Count[];
+    projects: ProjectRow[];
+    activity: Activity[];
 }) {
     return (
         <>
             <Head title="Dashboard" />
 
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title="Dashboard"
-                    description="What is waiting on you"
-                />
+            <div className="flex h-full flex-1 flex-col gap-8 p-4">
+                <header className="space-y-1">
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                        {attention.length === 0
+                            ? 'Nothing is waiting on you'
+                            : `${attention.length} ${attention.length === 1 ? 'thing wants' : 'things want'} your attention`}
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                        {new Date().toLocaleDateString(undefined, {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                        })}
+                    </p>
+                </header>
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                    {stats.map((stat) => (
-                        <Link
-                            key={stat.key}
-                            href={stat.url}
-                            className="rounded-xl border border-sidebar-border/70 p-4 transition-colors hover:bg-muted/50"
-                        >
-                            <p className="text-3xl font-semibold tabular-nums">
-                                {stat.value}
-                            </p>
-                            <p className="mt-1 font-medium">{stat.label}</p>
-                            <p className="text-sm text-muted-foreground">
-                                {stat.hint}
-                            </p>
-                        </Link>
-                    ))}
-                </div>
-
-                <QueueCard
-                    title="Asked to be looked at again"
-                    icon={<CalendarClock className="size-4" />}
-                    empty={queues.dueForReview.length === 0}
-                >
-                    <ul className="space-y-2 text-sm">
-                        {queues.dueForReview.map((item) => (
+                {attention.length === 0 ? (
+                    <div className="flex items-center gap-3 rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+                        <Check className="size-5" />
+                        No overdue reviews, no open severe findings, and every
+                        feed is answering.
+                    </div>
+                ) : (
+                    <ul className="space-y-2">
+                        {attention.map((item) => (
                             <li
-                                key={item.url}
-                                className="flex items-center justify-between gap-3"
+                                key={`${item.kind}-${item.url}-${item.why}`}
+                                className={`rounded-lg border border-l-4 border-border bg-card px-4 py-3 ${kindTone[item.kind] ?? 'border-l-border'}`}
                             >
-                                <span className="flex items-center gap-2">
-                                    <Badge variant="outline">{item.kind}</Badge>
+                                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                                     <Link
                                         href={item.url}
-                                        className="hover:underline"
+                                        className="font-medium hover:underline"
                                     >
                                         {item.label}
                                     </Link>
-                                </span>
-                                <span className="text-muted-foreground">
-                                    {item.due_at
-                                        ? new Date(
-                                              item.due_at,
-                                          ).toLocaleDateString()
-                                        : '—'}
-                                </span>
+                                    <span className="text-xs text-muted-foreground">
+                                        {item.kind}
+                                    </span>
+                                </div>
+                                <p className="mt-0.5 text-sm text-muted-foreground">
+                                    {item.why}
+                                </p>
                             </li>
                         ))}
                     </ul>
-                </QueueCard>
+                )}
 
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <QueueCard
-                        title="Severe findings still open"
-                        icon={<AlertTriangle className="size-4" />}
-                        empty={queues.severeFindings.length === 0}
-                    >
-                        <ul className="space-y-2 text-sm">
-                            {queues.severeFindings.map((note) => (
-                                <li
-                                    key={note.id}
-                                    className="flex items-center justify-between gap-3"
-                                >
-                                    <Link
-                                        href={securityNote(note.id)}
-                                        className="hover:underline"
-                                    >
-                                        {note.title}
-                                    </Link>
-                                    <Badge
-                                        variant={
-                                            note.severity === 'critical'
-                                                ? 'destructive'
-                                                : 'default'
-                                        }
-                                    >
-                                        {note.severity}
-                                    </Badge>
-                                </li>
-                            ))}
-                        </ul>
-                    </QueueCard>
+                <Section title="Open work">
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                        {counts.map((count) => (
+                            <Link
+                                key={count.key}
+                                href={count.url}
+                                className="rounded-xl border border-border bg-card p-4 transition-colors hover:border-ring"
+                            >
+                                <p className="text-3xl font-semibold tabular-nums">
+                                    {count.value}
+                                </p>
+                                <p className="mt-1 text-sm font-medium">
+                                    {count.label}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {count.hint}
+                                </p>
+                            </Link>
+                        ))}
+                    </div>
+                </Section>
 
-                    <QueueCard
-                        title="Proposals waiting on a prototype"
-                        icon={<FlaskConical className="size-4" />}
-                        empty={queues.needsPrototype.length === 0}
-                    >
-                        <ul className="space-y-2 text-sm">
-                            {queues.needsPrototype.map((item) => (
-                                <li
-                                    key={item.id}
-                                    className="flex items-center justify-between gap-3"
-                                >
-                                    <Link
-                                        href={vettingItem(item.id)}
-                                        className="hover:underline"
+                <div className="grid gap-8 lg:grid-cols-2">
+                    <Section title="Projects">
+                        {projects.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                No active projects.
+                            </p>
+                        ) : (
+                            <ul className="space-y-2">
+                                {projects.map((project) => (
+                                    <li
+                                        key={project.id}
+                                        className="rounded-lg border border-border bg-card px-4 py-3"
                                     >
-                                        {item.title}
-                                    </Link>
-                                    <span className="text-muted-foreground">
-                                        {new Date(
-                                            item.date_raised,
-                                        ).toLocaleDateString()}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </QueueCard>
+                                        <Link
+                                            href={project.url}
+                                            className="flex items-center gap-2 font-medium hover:underline"
+                                        >
+                                            <Badge
+                                                variant="secondary"
+                                                className="font-mono"
+                                            >
+                                                {project.prefix}
+                                            </Badge>
+                                            {project.name}
+                                        </Link>
 
-                    <QueueCard
-                        title="Deferred with no date"
-                        icon={<PauseCircle className="size-4" />}
-                        empty={queues.deferredFindings.length === 0}
-                    >
-                        <ul className="space-y-2 text-sm">
-                            {queues.deferredFindings.map((note) => (
-                                <li
-                                    key={note.id}
-                                    className="flex items-center justify-between gap-3"
-                                >
-                                    <Link
-                                        href={securityNote(note.id)}
-                                        className="hover:underline"
-                                    >
-                                        {note.title}
-                                    </Link>
-                                    <span className="text-muted-foreground">
-                                        {new Date(
-                                            note.date_flagged,
-                                        ).toLocaleDateString()}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </QueueCard>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            {project.open.every(
+                                                (part) => part.value === 0,
+                                            )
+                                                ? 'nothing open'
+                                                : project.open
+                                                      .filter(
+                                                          (part) =>
+                                                              part.value > 0,
+                                                      )
+                                                      .map(
+                                                          (part) =>
+                                                              `${part.value} ${part.label}`,
+                                                      )
+                                                      .join(' · ')}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Section>
 
-                    <QueueCard
-                        title="Feeds that failed to fetch"
-                        icon={<RssIcon className="size-4" />}
-                        empty={queues.staleFeeds.length === 0}
-                    >
-                        <ul className="space-y-2 text-sm">
-                            {queues.staleFeeds.map((feed) => (
-                                <li key={feed.id} className="space-y-1">
-                                    <Link
-                                        href={feedsIndex()}
-                                        className="hover:underline"
+                    <Section title="Lately">
+                        {activity.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                Nothing recorded yet.
+                            </p>
+                        ) : (
+                            <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+                                {activity.map((event) => (
+                                    <li
+                                        key={`${event.kind}-${event.url}-${event.at}`}
+                                        className="flex items-baseline justify-between gap-3 px-4 py-2 text-sm"
                                     >
-                                        {feed.name}
-                                    </Link>
-                                    <p className="text-xs text-destructive-foreground">
-                                        {feed.last_error}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
-                    </QueueCard>
+                                        <span className="flex min-w-0 items-baseline gap-2">
+                                            <span className="shrink-0 text-xs text-muted-foreground">
+                                                {event.kind}
+                                            </span>
+                                            <Link
+                                                href={event.url}
+                                                className="truncate hover:underline"
+                                            >
+                                                {event.label}
+                                            </Link>
+                                        </span>
+                                        <span className="shrink-0 text-xs text-muted-foreground">
+                                            {relativeDay(event.at)}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Section>
                 </div>
+
+                <Link
+                    href={dashboard()}
+                    className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                    only={['attention', 'counts', 'projects', 'activity']}
+                >
+                    Refresh <ArrowRight className="size-3" />
+                </Link>
             </div>
         </>
     );
