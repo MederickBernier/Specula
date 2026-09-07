@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\BuildProjectTimeline;
 use App\Actions\RenderProjectMarkdown;
+use App\Concerns\PresentsTechnologyStack;
 use App\Concerns\RendersMarkdown;
 use App\Http\Requests\Projects\StoreProjectRequest;
 use App\Models\Project;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class ProjectController extends Controller
 {
+    use PresentsTechnologyStack;
     use RendersMarkdown;
 
     /**
@@ -63,6 +65,7 @@ class ProjectController extends Controller
     {
         return Inertia::render('projects/show', [
             'project' => $project,
+            ...$this->technologyStackProps($project),
             'html' => ['description' => $this->renderMarkdown($project->description)],
             'decisions' => $project->decisionRecords()
                 ->orderBy('category')

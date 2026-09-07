@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\HasItemLinks;
+use App\Concerns\HasTechnologies;
 use App\Contracts\Linkable;
 use App\Enums\SecurityNoteSource;
 use App\Enums\SecurityNoteStatus;
@@ -59,6 +60,7 @@ class SecurityNote extends Model implements Linkable
     use HasFactory;
 
     use HasItemLinks;
+    use HasTechnologies;
 
     /**
      * Deferred findings whose deferral has run out on or before the given day.

@@ -6,6 +6,7 @@ use App\Actions\RenderDecisionRecordMarkdown;
 use App\Actions\SupersedeDecisionRecord;
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
+use App\Concerns\PresentsTechnologyStack;
 use App\Concerns\RendersMarkdown;
 use App\Enums\DecisionRelationshipType;
 use App\Enums\DecisionStatus;
@@ -24,6 +25,7 @@ class DecisionRecordController extends Controller
 {
     use OffersProjects;
     use PresentsItemLinks;
+    use PresentsTechnologyStack;
     use RendersMarkdown;
 
     /**
@@ -87,6 +89,7 @@ class DecisionRecordController extends Controller
 
         return Inertia::render('decisions/show', [
             'record' => $decisionRecord,
+            ...$this->technologyStackProps($decisionRecord),
             // Rendered here so the copy button needs no round trip; the
             // download route renders the same document.
             'markdown' => app(RenderDecisionRecordMarkdown::class)($decisionRecord),

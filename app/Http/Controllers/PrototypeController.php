@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
+use App\Concerns\PresentsTechnologyStack;
 use App\Concerns\RendersMarkdown;
 use App\Enums\ConfidenceLevel;
 use App\Enums\PrototypeStatus;
@@ -19,6 +20,7 @@ class PrototypeController extends Controller
 {
     use OffersProjects;
     use PresentsItemLinks;
+    use PresentsTechnologyStack;
     use RendersMarkdown;
 
     /**
@@ -70,6 +72,7 @@ class PrototypeController extends Controller
     {
         return Inertia::render('prototypes/show', [
             'prototype' => $prototype,
+            ...$this->technologyStackProps($prototype),
             ...$this->itemLinkProps($prototype),
             'html' => [
                 'hypothesis' => $this->renderMarkdown($prototype->hypothesis),

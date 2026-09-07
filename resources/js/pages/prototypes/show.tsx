@@ -3,6 +3,8 @@ import { GitBranch, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
+import TechnologyStack from '@/components/technology-stack';
+import type { TechnologyStackProps } from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -10,20 +12,24 @@ import { destroy, edit, index } from '@/routes/prototypes';
 import type { ItemLinkProps } from '@/types';
 import type { Prototype } from './types';
 
-type ShowProps = ItemLinkProps & {
-    prototype: Prototype;
-    html: {
-        hypothesis: string | null;
-        test_approach: string | null;
-        result: string | null;
-        abandoned_reason: string | null;
-        reusability_note: string | null;
+type ShowProps = ItemLinkProps &
+    TechnologyStackProps & {
+        prototype: Prototype;
+        html: {
+            hypothesis: string | null;
+            test_approach: string | null;
+            result: string | null;
+            abandoned_reason: string | null;
+            reusability_note: string | null;
+        };
     };
-};
 
 export default function ShowPrototype({
     prototype,
     html,
+    stack,
+    technologyOptions,
+    stackTarget,
     ...links
 }: ShowProps) {
     const { canWrite } = usePermissions();
@@ -118,6 +124,12 @@ export default function ShowPrototype({
                         />
                     </section>
                 )}
+
+                <TechnologyStack
+                    stack={stack}
+                    technologyOptions={technologyOptions}
+                    stackTarget={stackTarget}
+                />
 
                 <ItemLinks {...links} />
             </div>

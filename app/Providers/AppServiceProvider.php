@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ItemLink;
+use App\Models\TechnologyUsage;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
@@ -38,7 +39,14 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureLinkableModules(): void
     {
-        Relation::enforceMorphMap(ItemLink::modules());
+        // The map is the union of what can be linked and what can carry a
+        // technology. Keeping the two lists separate is deliberate: a project
+        // holds a stack without becoming a target for cross-module links,
+        // where it would only duplicate what it already contains.
+        Relation::enforceMorphMap([
+            ...ItemLink::modules(),
+            ...TechnologyUsage::carriers(),
+        ]);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\HasItemLinks;
+use App\Concerns\HasTechnologies;
 use App\Contracts\Linkable;
 use App\Enums\ConfidenceLevel;
 use App\Enums\PrototypeStatus;
@@ -52,6 +53,7 @@ class Prototype extends Model implements Linkable
     use HasFactory;
 
     use HasItemLinks;
+    use HasTechnologies;
 
     /**
      * @return array<string,string>

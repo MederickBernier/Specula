@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Concerns\HasItemLinks;
+use App\Concerns\HasTechnologies;
 use App\Contracts\Linkable;
 use App\Enums\DecisionStatus;
 use Carbon\CarbonImmutable;
@@ -58,6 +59,7 @@ class DecisionRecord extends Model implements Linkable
     use HasFactory;
 
     use HasItemLinks;
+    use HasTechnologies;
 
     /** @var list<string> */
     protected $appends = ['document_id'];

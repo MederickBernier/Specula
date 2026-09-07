@@ -13,6 +13,8 @@ use App\Http\Controllers\RadarItemController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SecurityNoteController;
+use App\Http\Controllers\TechnologyController;
+use App\Http\Controllers\TechnologyUsageController;
 use App\Http\Controllers\VettingItemController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +27,18 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('search', SearchController::class)->name('search');
+
+    // The recap sits above the resource so its path is not read as an id.
+    Route::get('technologies/breakdown', [TechnologyController::class, 'breakdown'])
+        ->name('technologies.breakdown');
+    Route::resource('technologies', TechnologyController::class);
+
+    Route::post('technology-usages', [TechnologyUsageController::class, 'store'])
+        ->name('technology-usages.store');
+    Route::put('technology-usages/{technologyUsage}', [TechnologyUsageController::class, 'update'])
+        ->name('technology-usages.update');
+    Route::delete('technology-usages/{technologyUsage}', [TechnologyUsageController::class, 'destroy'])
+        ->name('technology-usages.destroy');
     Route::get('metrics', MetricsController::class)->name('metrics');
 
     Route::resource('projects', ProjectController::class);

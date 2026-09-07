@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
+use App\Concerns\PresentsTechnologyStack;
 use App\Concerns\RendersMarkdown;
 use App\Enums\SecurityNoteSource;
 use App\Enums\SecurityNoteStatus;
@@ -21,6 +22,7 @@ class SecurityNoteController extends Controller
 {
     use OffersProjects;
     use PresentsItemLinks;
+    use PresentsTechnologyStack;
     use RendersMarkdown;
 
     /**
@@ -72,6 +74,7 @@ class SecurityNoteController extends Controller
     {
         return Inertia::render('security/show', [
             'note' => $securityNote,
+            ...$this->technologyStackProps($securityNote),
             ...$this->itemLinkProps($securityNote),
             'html' => [
                 'finding' => $this->renderMarkdown($securityNote->finding),

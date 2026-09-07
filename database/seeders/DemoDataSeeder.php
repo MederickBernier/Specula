@@ -11,6 +11,9 @@ use App\Enums\SecurityNoteSource;
 use App\Enums\SecurityNoteStatus;
 use App\Enums\SecurityRoutedTo;
 use App\Enums\SecuritySeverity;
+use App\Enums\TechnologyCategory;
+use App\Enums\TechnologyRing;
+use App\Enums\TechnologyStatus;
 use App\Enums\TriageStatus;
 use App\Enums\VettingSourceType;
 use App\Enums\VettingStatus;
@@ -24,6 +27,8 @@ use App\Models\ProjectNote;
 use App\Models\Prototype;
 use App\Models\RadarItem;
 use App\Models\SecurityNote;
+use App\Models\Technology;
+use App\Models\TechnologyUsage;
 use App\Models\VettingItem;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -62,7 +67,9 @@ class DemoDataSeeder extends Seeder
 
         $vng = $this->visionNextGen();
         $cra = $this->craCompliance();
-        $this->edgeFleet();
+        $edge = $this->edgeFleet();
+
+        $this->technologies($vng, $cra, $edge);
 
         $this->triageSomeRadarItems($vng);
 
@@ -470,6 +477,101 @@ class DemoDataSeeder extends Seeder
         $prototype->forceFill(['date_completed' => $on])->save();
 
         return $prototype;
+    }
+
+    /**
+     * The inventory, and where each piece of it runs.
+     *
+     * The interesting rows are the ones where the ring and the estate disagree:
+     * something held that three projects still depend on.
+     */
+    private function technologies(Project $vng, Project $cra, Project $edge): void
+    {
+        $add = fn (string $name, TechnologyCategory $category, TechnologyRing $ring, TechnologyStatus $status = TechnologyStatus::Current, ?string $vendor = null): Technology => Technology::create([
+            'name' => $name,
+            'category' => $category,
+            'ring' => $ring,
+            'status' => $status,
+            'vendor' => $vendor,
+        ]);
+
+        $php = $add('PHP', TechnologyCategory::Language, TechnologyRing::Adopt);
+        $typescript = $add('TypeScript', TechnologyCategory::Language, TechnologyRing::Adopt);
+        $c = $add('C', TechnologyCategory::Language, TechnologyRing::Adopt);
+        $rust = $add('Rust', TechnologyCategory::Language, TechnologyRing::Assess);
+
+        $laravel = $add('Laravel', TechnologyCategory::Framework, TechnologyRing::Adopt);
+        $react = $add('React', TechnologyCategory::Framework, TechnologyRing::Adopt);
+        $inertia = $add('Inertia', TechnologyCategory::Library, TechnologyRing::Adopt);
+        $vue = $add('Vue', TechnologyCategory::Framework, TechnologyRing::Hold, TechnologyStatus::Deprecated);
+
+        $postgres = $add('PostgreSQL', TechnologyCategory::Datastore, TechnologyRing::Adopt);
+        $sqlite = $add('SQLite', TechnologyCategory::Datastore, TechnologyRing::Trial);
+
+        $docker = $add('Docker', TechnologyCategory::Infrastructure, TechnologyRing::Adopt);
+        $caddy = $add('Caddy', TechnologyCategory::Infrastructure, TechnologyRing::Adopt);
+        $do = $add('DigitalOcean', TechnologyCategory::Platform, TechnologyRing::Adopt, TechnologyStatus::Current, 'DigitalOcean');
+        $aws = $add('AWS', TechnologyCategory::Platform, TechnologyRing::Adopt, TechnologyStatus::Current, 'Amazon');
+
+        // In the inventory, running nowhere: the thing worth noticing.
+        $add('Kubernetes', TechnologyCategory::Infrastructure, TechnologyRing::Hold);
+
+        $use = fn (Technology $technology, $record, ?string $version = null, ?string $role = null): TechnologyUsage => TechnologyUsage::create([
+            'technology_id' => $technology->id,
+            'usable_type' => $record->getMorphClass(),
+            'usable_id' => $record->getKey(),
+            'version' => $version,
+            'role' => $role,
+        ]);
+
+        $use($php, $vng, '8.5', 'backend');
+        $use($laravel, $vng, '13', 'application framework');
+        $use($typescript, $vng, '5.7');
+        $use($react, $vng, '19', 'client');
+        $use($inertia, $vng, '3');
+        $use($postgres, $vng, '18', 'primary datastore');
+        $use($docker, $vng, null, 'local and production');
+        $use($caddy, $vng, '2', 'TLS and static files');
+        $use($do, $vng, null, 'hosting');
+
+        // The same datastore, an older major, which is the spread an upgrade
+        // conversation actually needs.
+        $use($postgres, $cra, '15');
+        $use($php, $cra, '8.3');
+        $use($vue, $cra, '2.7', 'the dashboard nobody has replaced yet');
+        $use($aws, $cra, null, 'where the estate lives');
+
+        $use($c, $edge, null, 'device firmware');
+        $use($docker, $edge, null, 'build');
+
+        // Spikes reach for things the projects do not run, which is the point
+        // of separating them.
+        $spike = Prototype::query()->where('title', 'Offline job sheets in the browser')->first();
+
+        if ($spike instanceof Prototype) {
+            $use($typescript, $spike, '5.7');
+            $use($sqlite, $spike, null, 'local store behind the service worker');
+        }
+
+        $manifest = Prototype::query()->where('title', 'Signed manifest verification on device')->first();
+
+        if ($manifest instanceof Prototype) {
+            $use($rust, $manifest, null, 'the verifier, as an experiment');
+        }
+
+        // A decision is where a technology was chosen, and a finding is raised
+        // against one, so both carry the link.
+        $stack = DecisionRecord::query()->where('category', 'LANG')->first();
+
+        if ($stack instanceof DecisionRecord) {
+            $use($laravel, $stack);
+        }
+
+        $finding = SecurityNote::query()->where('title', 'Presigned upload URLs do not expire')->first();
+
+        if ($finding instanceof SecurityNote) {
+            $use($aws, $finding);
+        }
     }
 
     /**

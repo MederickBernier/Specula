@@ -5,6 +5,8 @@ import InputError from '@/components/input-error';
 import ItemLinks from '@/components/item-links';
 import { Markdown, MarkdownSection } from '@/components/markdown';
 import MarkdownExport from '@/components/markdown-export';
+import TechnologyStack from '@/components/technology-stack';
+import type {TechnologyStackProps} from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,30 +20,31 @@ import type { ItemLinkProps, SelectOption } from '@/types';
 import SupersedeForm from './supersede-form';
 import type { DecisionLink, DecisionRecord } from './types';
 
-type ShowProps = ItemLinkProps & {
-    markdown: string;
-    record: DecisionRecord & {
-        outgoing_links: DecisionLink[];
-        incoming_links: DecisionLink[];
+type ShowProps = ItemLinkProps &
+    TechnologyStackProps & {
+        markdown: string;
+        record: DecisionRecord & {
+            outgoing_links: DecisionLink[];
+            incoming_links: DecisionLink[];
+        };
+        html: {
+            proposal_context: string | null;
+            recommendation: string | null;
+            consequences: string | null;
+            conditions_for_revisiting: string | null;
+            options: Record<
+                number,
+                {
+                    description: string | null;
+                    pros: string | null;
+                    cons: string | null;
+                }
+            >;
+            links: Record<number, string | null>;
+        };
+        relationshipTypes: SelectOption[];
+        linkTargets: DecisionRecord[];
     };
-    html: {
-        proposal_context: string | null;
-        recommendation: string | null;
-        consequences: string | null;
-        conditions_for_revisiting: string | null;
-        options: Record<
-            number,
-            {
-                description: string | null;
-                pros: string | null;
-                cons: string | null;
-            }
-        >;
-        links: Record<number, string | null>;
-    };
-    relationshipTypes: SelectOption[];
-    linkTargets: DecisionRecord[];
-};
 
 function LinkRows({
     heading,
@@ -133,6 +136,9 @@ export default function ShowDecision({
     markdown,
     relationshipTypes,
     linkTargets,
+    stack,
+    technologyOptions,
+    stackTarget,
     ...crossModuleLinks
 }: ShowProps) {
     const { canWrite } = usePermissions();
@@ -384,6 +390,12 @@ export default function ShowDecision({
                         </Form>
                     )}
                 </section>
+
+                <TechnologyStack
+                    stack={stack}
+                    technologyOptions={technologyOptions}
+                    stackTarget={stackTarget}
+                />
 
                 <ItemLinks {...crossModuleLinks} />
             </div>

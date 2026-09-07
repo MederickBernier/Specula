@@ -7,6 +7,8 @@ use App\Models\ItemLink;
 use App\Models\Project;
 use App\Models\Prototype;
 use App\Models\SecurityNote;
+use App\Models\Technology;
+use App\Models\TechnologyUsage;
 use App\Models\VettingItem;
 use Database\Seeders\DemoDataSeeder;
 
@@ -19,7 +21,9 @@ test('it fills every module with something to look at', function () {
         ->and(Prototype::count())->toBeGreaterThan(0)
         ->and(SecurityNote::count())->toBeGreaterThan(0)
         ->and(DecisionLink::count())->toBeGreaterThan(0)
-        ->and(ItemLink::count())->toBeGreaterThan(0);
+        ->and(ItemLink::count())->toBeGreaterThan(0)
+        ->and(Technology::count())->toBeGreaterThan(0)
+        ->and(TechnologyUsage::count())->toBeGreaterThan(0);
 });
 
 test('the demo data exercises the states worth seeing', function () {
@@ -31,7 +35,13 @@ test('the demo data exercises the states worth seeing', function () {
         ->and(SecurityNote::where('is_issue', false)->exists())->toBeTrue()
         ->and(Prototype::whereNotNull('date_completed')->exists())->toBeTrue()
         ->and(Project::query()->archived()->exists())->toBeTrue()
-        ->and(VettingItem::whereNull('date_resolved')->exists())->toBeTrue();
+        ->and(VettingItem::whereNull('date_resolved')->exists())->toBeTrue()
+        // a technology held yet still running, and one in the inventory on nothing
+        ->and(Technology::where('ring', 'hold')->whereHas('usages')->exists())->toBeTrue()
+        ->and(Technology::whereDoesntHave('usages')->exists())->toBeTrue()
+        // the same technology at different versions in different projects
+        ->and(TechnologyUsage::where('version', '15')->exists())->toBeTrue()
+        ->and(TechnologyUsage::where('version', '18')->exists())->toBeTrue();
 });
 
 test('a decision filed under a project carries that project prefix', function () {

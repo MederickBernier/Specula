@@ -4,6 +4,7 @@ import {
     FileText,
     FlaskConical,
     FolderKanban,
+    Layers,
     LayoutGrid,
     ChartNoAxesColumn,
     Radar,
@@ -28,6 +29,7 @@ import { index as projectsIndex } from '@/routes/projects';
 import { index as prototypesIndex } from '@/routes/prototypes';
 import { index as radarIndex } from '@/routes/radar';
 import { index as securityNotesIndex } from '@/routes/security-notes';
+import { index as technologiesIndex } from '@/routes/technologies';
 import { index as vettingIndex } from '@/routes/vetting';
 import type { NavItem } from '@/types';
 
@@ -71,6 +73,11 @@ const mainNavItems: NavItem[] = [
         title: 'Security',
         href: securityNotesIndex(),
         icon: ShieldAlert,
+    },
+    {
+        title: 'Technologies',
+        href: technologiesIndex(),
+        icon: Layers,
     },
     {
         title: 'Radar',

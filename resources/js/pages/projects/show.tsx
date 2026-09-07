@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import Heading from '@/components/heading';
 import { MarkdownSection } from '@/components/markdown';
 import MarkdownExport from '@/components/markdown-export';
+import TechnologyStack from '@/components/technology-stack';
+import type {TechnologyStackProps} from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -26,7 +28,7 @@ import type {
     ProjectRow,
 } from './types';
 
-type ShowProps = {
+type ShowProps = TechnologyStackProps & {
     project: Project;
     html: { description: string | null };
     decisions: ProjectDecision[];
@@ -93,6 +95,9 @@ export default function ShowProject({
     prototypes,
     securityNotes,
     notes,
+    stack,
+    technologyOptions,
+    stackTarget,
 }: ShowProps) {
     const { canWrite } = usePermissions();
 
@@ -214,6 +219,12 @@ export default function ShowProject({
                         />
                     ))}
                 </Group>
+
+                <TechnologyStack
+                    stack={stack}
+                    technologyOptions={technologyOptions}
+                    stackTarget={stackTarget}
+                />
 
                 <ProjectNotes projectId={project.id} notes={notes} />
             </div>

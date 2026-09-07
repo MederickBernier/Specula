@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Concerns\HasTechnologies;
 use Carbon\CarbonImmutable;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -28,6 +29,8 @@ class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+
+    use HasTechnologies;
 
     /**
      * @return array<string,string>

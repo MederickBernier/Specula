@@ -3,6 +3,8 @@ import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
+import TechnologyStack from '@/components/technology-stack';
+import type { TechnologyStackProps } from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -10,16 +12,24 @@ import { destroy, edit, index } from '@/routes/security-notes';
 import type { ItemLinkProps } from '@/types';
 import type { SecurityNote } from './types';
 
-type ShowProps = ItemLinkProps & {
-    note: SecurityNote;
-    html: {
-        finding: string | null;
-        non_issue_reason: string | null;
-        deferral_reason: string | null;
+type ShowProps = ItemLinkProps &
+    TechnologyStackProps & {
+        note: SecurityNote;
+        html: {
+            finding: string | null;
+            non_issue_reason: string | null;
+            deferral_reason: string | null;
+        };
     };
-};
 
-export default function ShowSecurityNote({ note, html, ...links }: ShowProps) {
+export default function ShowSecurityNote({
+    note,
+    html,
+    stack,
+    technologyOptions,
+    stackTarget,
+    ...links
+}: ShowProps) {
     const { canWrite } = usePermissions();
 
     return (
@@ -113,6 +123,12 @@ export default function ShowSecurityNote({ note, html, ...links }: ShowProps) {
                         html={html.deferral_reason}
                     />
                 )}
+
+                <TechnologyStack
+                    stack={stack}
+                    technologyOptions={technologyOptions}
+                    stackTarget={stackTarget}
+                />
 
                 <ItemLinks {...links} />
             </div>
