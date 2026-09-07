@@ -8,6 +8,7 @@ import {
     FolderKanban,
     LayoutGrid,
     Radar,
+    Search,
     ShieldAlert,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -23,7 +24,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, search } from '@/routes';
 import { index as decisionsIndex } from '@/routes/decisions';
 import { index as projectsIndex } from '@/routes/projects';
 import { index as prototypesIndex } from '@/routes/prototypes';
@@ -37,6 +38,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Search',
+        href: search(),
+        icon: Search,
     },
     {
         title: 'Projects',

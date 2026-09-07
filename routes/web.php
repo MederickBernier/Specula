@@ -10,6 +10,7 @@ use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\RadarItemController;
 use App\Http\Controllers\SavedSearchController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SecurityNoteController;
 use App\Http\Controllers\VettingItemController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,8 @@ Route::inertia('/', 'welcome')->name('home');
 // here once, including for modules added later.
 Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('search', SearchController::class)->name('search');
 
     Route::resource('projects', ProjectController::class);
 
