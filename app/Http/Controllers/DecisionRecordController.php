@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\RendersMarkdown;
+use App\Enums\DecisionRelationshipType;
+use App\Enums\DecisionStatus;
 use App\Http\Requests\Decisions\StoreDecisionRecordRequest;
 use App\Http\Requests\Decisions\UpdateDecisionRecordRequest;
 use App\Models\DecisionRecord;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 use Inertia\Response;
 
 class DecisionRecordController extends Controller
@@ -15,64 +20,135 @@ class DecisionRecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index():Response
+    public function index(): Response
     {
-        return inertia('decisions/index',[
+        return Inertia::render('decisions/index', [
             'records' => DecisionRecord::query()
-            ->orderBy('project_prefix')
-            ->orderBy('category')
-            ->orderBy('sequence')
-            ->get(['id','project_prefix','category','sequence','title','status','updated_at']),
+                ->orderBy('project_prefix')
+                ->orderBy('category')
+                ->orderBy('sequence')
+                ->get(['id', 'project_prefix', 'category', 'sequence', 'title', 'status', 'updated_at']),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create():Response
+    public function create(): Response
     {
-        return inertia('decisions/create',[
-            'statuses' => $this->statusOptions(),
+        return Inertia::render('decisions/create', [
+            'statuses' => DecisionStatus::options(),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDecisionRecordRequest $request)
+    public function store(StoreDecisionRecordRequest $request): RedirectResponse
     {
-        //
+        $record = DB::transaction(function () use ($request): DecisionRecord {
+            $record = DecisionRecord::create($request->safe()->except('options'));
+
+            $record->options()->createMany($request->validated('options', []));
+
+            return $record;
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Decision record created.')]);
+
+        return to_route('decisions.show', $record);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(DecisionRecord $decisionRecord)
+    public function show(DecisionRecord $decisionRecord): Response
     {
-        //
+        $decisionRecord->load([
+            'options',
+            'outgoingLinks.target',
+            'incomingLinks.source',
+        ]);
+
+        return Inertia::render('decisions/show', [
+            'record' => $decisionRecord,
+            'html' => $this->renderRecordMarkdown($decisionRecord),
+            'relationshipTypes' => DecisionRelationshipType::options(),
+            'linkTargets' => DecisionRecord::query()
+                ->whereKeyNot($decisionRecord->getKey())
+                ->orderBy('project_prefix')
+                ->orderBy('category')
+                ->orderBy('sequence')
+                ->get(['id', 'project_prefix', 'category', 'sequence', 'title']),
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DecisionRecord $decisionRecord)
+    public function edit(DecisionRecord $decisionRecord): Response
     {
-        //
+        return Inertia::render('decisions/edit', [
+            'record' => $decisionRecord->load('options'),
+            'statuses' => DecisionStatus::options(),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDecisionRecordRequest $request, DecisionRecord $decisionRecord)
+    public function update(UpdateDecisionRecordRequest $request, DecisionRecord $decisionRecord): RedirectResponse
     {
-        //
+        DB::transaction(function () use ($request, $decisionRecord): void {
+            $decisionRecord->update($request->safe()->except('options'));
+
+            // ponytail: options are replaced wholesale rather than diffed by id.
+            // Move to a keyed sync only if option ids need to stay stable.
+            $decisionRecord->options()->delete();
+            $decisionRecord->options()->createMany($request->validated('options', []));
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Decision record updated.')]);
+
+        return to_route('decisions.show', $decisionRecord);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DecisionRecord $decisionRecord)
+    public function destroy(DecisionRecord $decisionRecord): RedirectResponse
     {
-        //
+        $decisionRecord->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Decision record deleted.')]);
+
+        return to_route('decisions.index');
+    }
+
+    /**
+     * The record's markdown sections rendered to HTML for reading.
+     *
+     * @return array<string, mixed>
+     */
+    private function renderRecordMarkdown(DecisionRecord $record): array
+    {
+        return [
+            'proposal_context' => $this->renderMarkdown($record->proposal_context),
+            'recommendation' => $this->renderMarkdown($record->recommendation),
+            'consequences' => $this->renderMarkdown($record->consequences),
+            'conditions_for_revisiting' => $this->renderMarkdown($record->conditions_for_revisiting),
+            'options' => $record->options
+                ->mapWithKeys(fn ($option): array => [$option->id => [
+                    'description' => $this->renderMarkdown($option->description),
+                    'pros' => $this->renderMarkdown($option->pros),
+                    'cons' => $this->renderMarkdown($option->cons),
+                ]])
+                ->all(),
+            'links' => $record->outgoingLinks->merge($record->incomingLinks)
+                ->mapWithKeys(fn ($link): array => [
+                    $link->id => $this->renderMarkdown($link->impact_summary),
+                ])
+                ->all(),
+        ];
     }
 }

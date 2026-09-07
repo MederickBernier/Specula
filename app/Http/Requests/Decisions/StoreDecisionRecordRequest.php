@@ -9,12 +9,13 @@ use Illuminate\Foundation\Http\FormRequest;
 class StoreDecisionRecordRequest extends FormRequest
 {
     use DecisionRecordValidationRules;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**

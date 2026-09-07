@@ -18,4 +18,17 @@ enum DecisionStatus: string
             self::Superseded => 'Superseded',
         };
     }
+
+    /**
+     * Value/label pairs for rendering a select in the frontend.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public static function options(): array
+    {
+        return array_map(
+            fn (self $case): array => ['value' => $case->value, 'label' => $case->label()],
+            self::cases(),
+        );
+    }
 }
