@@ -1,10 +1,14 @@
 import { Head } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { create, index, store } from '@/routes/decisions';
+import type { SelectOption } from '@/types';
 import DecisionForm from './decision-form';
-import type { SelectOption } from './types';
 
-export default function CreateDecision({ statuses }: { statuses: SelectOption[] }) {
+export default function CreateDecision({
+    statuses,
+}: {
+    statuses: SelectOption[];
+}) {
     return (
         <>
             <Head title="New decision record" />

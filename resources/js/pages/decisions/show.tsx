@@ -2,18 +2,17 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { Markdown, MarkdownSection } from '@/components/markdown';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 import { destroy, edit, index } from '@/routes/decisions';
 import links from '@/routes/decisions/links';
-import type {
-    DecisionLink,
-    DecisionRecord,
-    SelectOption,
-} from './types';
+import type { SelectOption } from '@/types';
+import type { DecisionLink, DecisionRecord } from './types';
 
 type ShowProps = {
     record: DecisionRecord & {
@@ -25,35 +24,19 @@ type ShowProps = {
         recommendation: string | null;
         consequences: string | null;
         conditions_for_revisiting: string | null;
-        options: Record<number, { description: string | null; pros: string | null; cons: string | null }>;
+        options: Record<
+            number,
+            {
+                description: string | null;
+                pros: string | null;
+                cons: string | null;
+            }
+        >;
         links: Record<number, string | null>;
     };
     relationshipTypes: SelectOption[];
     linkTargets: DecisionRecord[];
 };
-
-function Markdown({ html }: { html: string | null }) {
-    if (!html) {
-        return <p className="text-muted-foreground text-sm">Not recorded.</p>;
-    }
-
-    // Safe: the server renders this with html_input stripped and unsafe links disallowed.
-    return (
-        <div
-            className="prose prose-sm dark:prose-invert max-w-none [&_a]:underline [&_code]:font-mono [&_li]:my-1 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
-            dangerouslySetInnerHTML={{ __html: html }}
-        />
-    );
-}
-
-function Section({ title, html }: { title: string; html: string | null }) {
-    return (
-        <section className="space-y-2">
-            <h2 className="text-lg font-medium">{title}</h2>
-            <Markdown html={html} />
-        </section>
-    );
-}
 
 function LinkRows({
     heading,
@@ -76,28 +59,41 @@ function LinkRows({
             <h3 className="font-medium">{heading}</h3>
 
             {rows.length === 0 ? (
-                <p className="text-muted-foreground text-sm">None.</p>
+                <p className="text-sm text-muted-foreground">None.</p>
             ) : (
                 <ul className="space-y-3">
                     {rows.map((link) => {
-                        const other = direction === 'outgoing' ? link.target : link.source;
+                        const other =
+                            direction === 'outgoing'
+                                ? link.target
+                                : link.source;
 
                         return (
                             <li
                                 key={link.id}
-                                className="border-sidebar-border/70 dark:border-sidebar-border flex items-start justify-between gap-4 rounded-lg border p-3"
+                                className="flex items-start justify-between gap-4 rounded-lg border border-sidebar-border/70 p-3 dark:border-sidebar-border"
                             >
                                 <div className="space-y-1">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <Badge variant="outline">{labelFor(link.relationship_type)}</Badge>
-                                        <span className="font-mono text-sm">{other?.document_id}</span>
-                                        <span className="text-sm">{other?.title}</span>
+                                        <Badge variant="outline">
+                                            {labelFor(link.relationship_type)}
+                                        </Badge>
+                                        <span className="font-mono text-sm">
+                                            {other?.document_id}
+                                        </span>
+                                        <span className="text-sm">
+                                            {other?.title}
+                                        </span>
                                     </div>
                                     {link.scope_note && (
-                                        <p className="text-muted-foreground text-sm">Scope: {link.scope_note}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Scope: {link.scope_note}
+                                        </p>
                                     )}
                                     {link.role_note && (
-                                        <p className="text-muted-foreground text-sm">Role: {link.role_note}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Role: {link.role_note}
+                                        </p>
                                     )}
                                     <Markdown html={html[link.id] ?? null} />
                                 </div>
@@ -126,14 +122,21 @@ function LinkRows({
     );
 }
 
-export default function ShowDecision({ record, html, relationshipTypes, linkTargets }: ShowProps) {
+export default function ShowDecision({
+    record,
+    html,
+    relationshipTypes,
+    linkTargets,
+}: ShowProps) {
     return (
         <>
             <Head title={record.document_id} />
 
             <div className="flex h-full flex-1 flex-col gap-8 p-4">
                 <div className="flex items-start justify-between gap-4">
-                    <Heading title={`${record.document_id} — ${record.title}`} />
+                    <Heading
+                        title={`${record.document_id} — ${record.title}`}
+                    />
 
                     <div className="flex items-center gap-2">
                         <Button asChild variant="outline">
@@ -169,37 +172,69 @@ export default function ShowDecision({ record, html, relationshipTypes, linkTarg
                     </div>
                 </dl>
 
-                <Section title="Context" html={html.proposal_context} />
-                <Section title="Decision / recommendation" html={html.recommendation} />
-                <Section title="Consequences" html={html.consequences} />
-                <Section title="Conditions for revisiting" html={html.conditions_for_revisiting} />
+                <MarkdownSection title="Context" html={html.proposal_context} />
+                <MarkdownSection
+                    title="Decision / recommendation"
+                    html={html.recommendation}
+                />
+                <MarkdownSection
+                    title="Consequences"
+                    html={html.consequences}
+                />
+                <MarkdownSection
+                    title="Conditions for revisiting"
+                    html={html.conditions_for_revisiting}
+                />
 
                 <section className="space-y-4">
                     <h2 className="text-lg font-medium">Options considered</h2>
 
                     {record.options.length === 0 ? (
-                        <p className="text-muted-foreground text-sm">No options recorded.</p>
+                        <p className="text-sm text-muted-foreground">
+                            No options recorded.
+                        </p>
                     ) : (
                         record.options.map((option) => (
                             <div
                                 key={option.id}
-                                className="border-sidebar-border/70 dark:border-sidebar-border space-y-3 rounded-xl border p-4"
+                                className="space-y-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
                             >
                                 <div className="flex items-center gap-2">
-                                    <h3 className="font-medium">{option.name}</h3>
+                                    <h3 className="font-medium">
+                                        {option.name}
+                                    </h3>
                                     {option.was_chosen && <Badge>Chosen</Badge>}
                                 </div>
 
-                                <Markdown html={html.options[option.id!]?.description ?? null} />
+                                <Markdown
+                                    html={
+                                        html.options[option.id!]?.description ??
+                                        null
+                                    }
+                                />
 
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div>
-                                        <h4 className="text-muted-foreground text-sm">Pros</h4>
-                                        <Markdown html={html.options[option.id!]?.pros ?? null} />
+                                        <h4 className="text-sm text-muted-foreground">
+                                            Pros
+                                        </h4>
+                                        <Markdown
+                                            html={
+                                                html.options[option.id!]
+                                                    ?.pros ?? null
+                                            }
+                                        />
                                     </div>
                                     <div>
-                                        <h4 className="text-muted-foreground text-sm">Cons</h4>
-                                        <Markdown html={html.options[option.id!]?.cons ?? null} />
+                                        <h4 className="text-sm text-muted-foreground">
+                                            Cons
+                                        </h4>
+                                        <Markdown
+                                            html={
+                                                html.options[option.id!]
+                                                    ?.cons ?? null
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +266,7 @@ export default function ShowDecision({ record, html, relationshipTypes, linkTarg
                             {...links.store.form(record.id)}
                             options={{ preserveScroll: true }}
                             resetOnSuccess
-                            className="border-sidebar-border/70 dark:border-sidebar-border space-y-4 rounded-xl border p-4"
+                            className="space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
                         >
                             {({ processing, errors }) => (
                                 <>
@@ -239,58 +274,86 @@ export default function ShowDecision({ record, html, relationshipTypes, linkTarg
 
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div className="grid gap-2">
-                                            <Label htmlFor="target_id">Target record</Label>
-                                            <select
+                                            <Label htmlFor="target_id">
+                                                Target record
+                                            </Label>
+                                            <NativeSelect
                                                 id="target_id"
                                                 name="target_id"
                                                 required
-                                                className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
-                                            >
-                                                {linkTargets.map((target) => (
-                                                    <option key={target.id} value={target.id}>
-                                                        {target.document_id} — {target.title}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <InputError message={errors.target_id} />
+                                                options={linkTargets.map(
+                                                    (target) => ({
+                                                        value: String(
+                                                            target.id,
+                                                        ),
+                                                        label: `${target.document_id} — ${target.title}`,
+                                                    }),
+                                                )}
+                                            />
+                                            <InputError
+                                                message={errors.target_id}
+                                            />
                                         </div>
 
                                         <div className="grid gap-2">
-                                            <Label htmlFor="relationship_type">Relationship</Label>
-                                            <select
+                                            <Label htmlFor="relationship_type">
+                                                Relationship
+                                            </Label>
+                                            <NativeSelect
                                                 id="relationship_type"
                                                 name="relationship_type"
                                                 required
-                                                className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
-                                            >
-                                                {relationshipTypes.map((type) => (
-                                                    <option key={type.value} value={type.value}>
-                                                        {type.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <InputError message={errors.relationship_type} />
+                                                options={relationshipTypes}
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors.relationship_type
+                                                }
+                                            />
                                         </div>
 
                                         <div className="grid gap-2">
-                                            <Label htmlFor="scope_note">Scope note</Label>
-                                            <Input id="scope_note" name="scope_note" />
-                                            <InputError message={errors.scope_note} />
+                                            <Label htmlFor="scope_note">
+                                                Scope note
+                                            </Label>
+                                            <Input
+                                                id="scope_note"
+                                                name="scope_note"
+                                            />
+                                            <InputError
+                                                message={errors.scope_note}
+                                            />
                                         </div>
 
                                         <div className="grid gap-2">
-                                            <Label htmlFor="role_note">Role note</Label>
-                                            <Input id="role_note" name="role_note" />
-                                            <InputError message={errors.role_note} />
+                                            <Label htmlFor="role_note">
+                                                Role note
+                                            </Label>
+                                            <Input
+                                                id="role_note"
+                                                name="role_note"
+                                            />
+                                            <InputError
+                                                message={errors.role_note}
+                                            />
                                         </div>
                                     </div>
 
                                     <div className="grid gap-2">
                                         <Label htmlFor="impact_summary">
-                                            Impact summary <span className="text-muted-foreground">(markdown)</span>
+                                            Impact summary{' '}
+                                            <span className="text-muted-foreground">
+                                                (markdown)
+                                            </span>
                                         </Label>
-                                        <Textarea id="impact_summary" name="impact_summary" rows={4} />
-                                        <InputError message={errors.impact_summary} />
+                                        <Textarea
+                                            id="impact_summary"
+                                            name="impact_summary"
+                                            rows={4}
+                                        />
+                                        <InputError
+                                            message={errors.impact_summary}
+                                        />
                                     </div>
 
                                     <Button type="submit" disabled={processing}>

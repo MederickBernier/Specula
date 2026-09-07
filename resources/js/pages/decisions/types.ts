@@ -1,8 +1,3 @@
-export type SelectOption = {
-    value: string;
-    label: string;
-};
-
 export type DecisionOption = {
     id?: number;
     name: string;

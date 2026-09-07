@@ -19,3 +19,9 @@ export type AuthLayoutProps = {
     title?: string;
     description?: string;
 };
+
+/** A backed enum case as exposed by its PHP `options()` helper. */
+export type SelectOption = {
+    value: string;
+    label: string;
+};

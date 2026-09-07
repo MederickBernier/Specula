@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
-import type { DecisionOption, DecisionRecord, SelectOption } from './types';
+import type { SelectOption } from '@/types';
+import type { DecisionOption, DecisionRecord } from './types';
 
 type DecisionFormData = {
     project_prefix: string;
@@ -49,12 +51,13 @@ function initialData(
         recommendation: record?.recommendation ?? '',
         consequences: record?.consequences ?? '',
         conditions_for_revisiting: record?.conditions_for_revisiting ?? '',
-        options: record?.options?.map((option) => ({
-            ...option,
-            description: option.description ?? '',
-            pros: option.pros ?? '',
-            cons: option.cons ?? '',
-        })) ?? [],
+        options:
+            record?.options?.map((option) => ({
+                ...option,
+                description: option.description ?? '',
+                pros: option.pros ?? '',
+                cons: option.cons ?? '',
+            })) ?? [],
     };
 }
 
@@ -99,7 +102,9 @@ export default function DecisionForm({
                     <Input
                         id="project_prefix"
                         value={data.project_prefix}
-                        onChange={(event) => setData('project_prefix', event.target.value)}
+                        onChange={(event) =>
+                            setData('project_prefix', event.target.value)
+                        }
                         placeholder="VNG"
                         required
                     />
@@ -111,7 +116,9 @@ export default function DecisionForm({
                     <Input
                         id="category"
                         value={data.category}
-                        onChange={(event) => setData('category', event.target.value)}
+                        onChange={(event) =>
+                            setData('category', event.target.value)
+                        }
                         placeholder="ARCH"
                         required
                     />
@@ -125,7 +132,9 @@ export default function DecisionForm({
                         type="number"
                         min={1}
                         value={data.sequence}
-                        onChange={(event) => setData('sequence', event.target.value)}
+                        onChange={(event) =>
+                            setData('sequence', event.target.value)
+                        }
                         required
                     />
                     <InputError message={errors.sequence} />
@@ -146,18 +155,14 @@ export default function DecisionForm({
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="grid gap-2">
                     <Label htmlFor="status">Status</Label>
-                    <select
+                    <NativeSelect
                         id="status"
+                        options={statuses}
                         value={data.status}
-                        onChange={(event) => setData('status', event.target.value)}
-                        className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
-                    >
-                        {statuses.map((status) => (
-                            <option key={status.value} value={status.value}>
-                                {status.label}
-                            </option>
-                        ))}
-                    </select>
+                        onChange={(event) =>
+                            setData('status', event.target.value)
+                        }
+                    />
                     <InputError message={errors.status} />
                 </div>
 
@@ -166,7 +171,9 @@ export default function DecisionForm({
                     <Input
                         id="author"
                         value={data.author}
-                        onChange={(event) => setData('author', event.target.value)}
+                        onChange={(event) =>
+                            setData('author', event.target.value)
+                        }
                         required
                     />
                     <InputError message={errors.author} />
@@ -177,7 +184,9 @@ export default function DecisionForm({
                     <Input
                         id="deciders"
                         value={data.deciders}
-                        onChange={(event) => setData('deciders', event.target.value)}
+                        onChange={(event) =>
+                            setData('deciders', event.target.value)
+                        }
                         placeholder="N/A"
                     />
                     <InputError message={errors.deciders} />
@@ -188,7 +197,9 @@ export default function DecisionForm({
                     <Input
                         id="affects"
                         value={data.affects}
-                        onChange={(event) => setData('affects', event.target.value)}
+                        onChange={(event) =>
+                            setData('affects', event.target.value)
+                        }
                     />
                     <InputError message={errors.affects} />
                 </div>
@@ -199,12 +210,19 @@ export default function DecisionForm({
                     ['proposal_context', 'Context', true],
                     ['recommendation', 'Decision / recommendation', true],
                     ['consequences', 'Consequences', false],
-                    ['conditions_for_revisiting', 'Conditions for revisiting', false],
+                    [
+                        'conditions_for_revisiting',
+                        'Conditions for revisiting',
+                        false,
+                    ],
                 ] as const
             ).map(([field, label, required]) => (
                 <div key={field} className="grid gap-2">
                     <Label htmlFor={field}>
-                        {label} <span className="text-muted-foreground">(markdown)</span>
+                        {label}{' '}
+                        <span className="text-muted-foreground">
+                            (markdown)
+                        </span>
                     </Label>
                     <Textarea
                         id={field}
@@ -224,31 +242,52 @@ export default function DecisionForm({
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setData('options', [...data.options, { ...emptyOption }])}
+                        onClick={() =>
+                            setData('options', [
+                                ...data.options,
+                                { ...emptyOption },
+                            ])
+                        }
                     >
                         <Plus /> Add option
                     </Button>
                 </div>
 
                 {data.options.length === 0 && (
-                    <p className="text-muted-foreground text-sm">No options recorded yet.</p>
+                    <p className="text-sm text-muted-foreground">
+                        No options recorded yet.
+                    </p>
                 )}
 
                 {data.options.map((option, index) => (
                     <div
                         key={index}
-                        className="border-sidebar-border/70 dark:border-sidebar-border space-y-4 rounded-xl border p-4"
+                        className="space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
                     >
                         <div className="flex items-start gap-4">
                             <div className="grid flex-1 gap-2">
-                                <Label htmlFor={`option-${index}-name`}>Name</Label>
+                                <Label htmlFor={`option-${index}-name`}>
+                                    Name
+                                </Label>
                                 <Input
                                     id={`option-${index}-name`}
                                     value={option.name}
-                                    onChange={(event) => updateOption(index, 'name', event.target.value)}
+                                    onChange={(event) =>
+                                        updateOption(
+                                            index,
+                                            'name',
+                                            event.target.value,
+                                        )
+                                    }
                                     required
                                 />
-                                <InputError message={errors[`options.${index}.name` as keyof typeof errors]} />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `options.${index}.name` as keyof typeof errors
+                                        ]
+                                    }
+                                />
                             </div>
 
                             <Button
@@ -260,7 +299,9 @@ export default function DecisionForm({
                                 onClick={() =>
                                     setData(
                                         'options',
-                                        data.options.filter((_, current) => current !== index),
+                                        data.options.filter(
+                                            (_, current) => current !== index,
+                                        ),
                                     )
                                 }
                             >
@@ -276,11 +317,19 @@ export default function DecisionForm({
                             ] as const
                         ).map(([field, label]) => (
                             <div key={field} className="grid gap-2">
-                                <Label htmlFor={`option-${index}-${field}`}>{label}</Label>
+                                <Label htmlFor={`option-${index}-${field}`}>
+                                    {label}
+                                </Label>
                                 <Textarea
                                     id={`option-${index}-${field}`}
                                     value={option[field] ?? ''}
-                                    onChange={(event) => updateOption(index, field, event.target.value)}
+                                    onChange={(event) =>
+                                        updateOption(
+                                            index,
+                                            field,
+                                            event.target.value,
+                                        )
+                                    }
                                     rows={4}
                                 />
                             </div>
@@ -291,10 +340,16 @@ export default function DecisionForm({
                                 id={`option-${index}-chosen`}
                                 checked={option.was_chosen}
                                 onCheckedChange={(checked) =>
-                                    updateOption(index, 'was_chosen', checked === true)
+                                    updateOption(
+                                        index,
+                                        'was_chosen',
+                                        checked === true,
+                                    )
                                 }
                             />
-                            <Label htmlFor={`option-${index}-chosen`}>This option was chosen</Label>
+                            <Label htmlFor={`option-${index}-chosen`}>
+                                This option was chosen
+                            </Label>
                         </div>
                     </div>
                 ))}

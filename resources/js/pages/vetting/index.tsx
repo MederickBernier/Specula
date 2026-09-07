@@ -3,42 +3,44 @@ import { Plus } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { create, index, show } from '@/routes/decisions';
-import type { DecisionRecordSummary } from './types';
+import { create, index, show } from '@/routes/vetting';
+import type { SelectOption } from '@/types';
+import type { VettingItemSummary } from './types';
 
-const statusLabels: Record<string, string> = {
-    draft: 'Draft',
-    under_rework: 'Under rework',
-    decided: 'Decided',
-    superseded: 'Superseded',
-};
+function labelFor(options: SelectOption[], value: string) {
+    return options.find((option) => option.value === value)?.label ?? value;
+}
 
-export default function DecisionsIndex({
-    records,
+export default function VettingIndex({
+    items,
+    statuses,
+    sourceTypes,
 }: {
-    records: DecisionRecordSummary[];
+    items: VettingItemSummary[];
+    statuses: SelectOption[];
+    sourceTypes: SelectOption[];
 }) {
     return (
         <>
-            <Head title="Decision records" />
+            <Head title="Vetting log" />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <div className="flex items-start justify-between">
                     <Heading
-                        title="Decision records"
-                        description="Architecture decisions, their options and their cross-references"
+                        title="Vetting log"
+                        description="Proposals from intake through to a verdict"
                     />
 
                     <Button asChild>
                         <Link href={create()}>
-                            <Plus /> New record
+                            <Plus /> New item
                         </Link>
                     </Button>
                 </div>
 
-                {records.length === 0 ? (
+                {items.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                        No decision records yet.
+                        Nothing in the log yet.
                     </p>
                 ) : (
                     <div className="overflow-x-auto rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
@@ -46,52 +48,59 @@ export default function DecisionsIndex({
                             <thead className="bg-muted/50 text-left">
                                 <tr>
                                     <th className="px-4 py-2 font-medium">
-                                        Document
+                                        Title
                                     </th>
                                     <th className="px-4 py-2 font-medium">
-                                        Title
+                                        Source
                                     </th>
                                     <th className="px-4 py-2 font-medium">
                                         Status
                                     </th>
                                     <th className="px-4 py-2 font-medium">
-                                        Updated
+                                        Raised
+                                    </th>
+                                    <th className="px-4 py-2 font-medium">
+                                        Resolved
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {records.map((record) => (
+                                {items.map((item) => (
                                     <tr
-                                        key={record.id}
+                                        key={item.id}
                                         className="border-t border-sidebar-border/70 dark:border-sidebar-border"
                                     >
-                                        <td className="px-4 py-2 font-mono">
+                                        <td className="px-4 py-2">
                                             <Link
-                                                href={show(record.id)}
+                                                href={show(item.id)}
                                                 className="hover:underline"
                                             >
-                                                {record.document_id}
+                                                {item.title}
                                             </Link>
                                         </td>
                                         <td className="px-4 py-2">
-                                            <Link
-                                                href={show(record.id)}
-                                                className="hover:underline"
-                                            >
-                                                {record.title}
-                                            </Link>
+                                            {labelFor(
+                                                sourceTypes,
+                                                item.source_type,
+                                            )}
                                         </td>
                                         <td className="px-4 py-2">
                                             <Badge variant="secondary">
-                                                {statusLabels[
-                                                    record.status ?? ''
-                                                ] ?? record.status}
+                                                {labelFor(
+                                                    statuses,
+                                                    item.status,
+                                                )}
                                             </Badge>
                                         </td>
                                         <td className="px-4 py-2 text-muted-foreground">
-                                            {record.updated_at
+                                            {new Date(
+                                                item.date_raised,
+                                            ).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-4 py-2 text-muted-foreground">
+                                            {item.date_resolved
                                                 ? new Date(
-                                                      record.updated_at,
+                                                      item.date_resolved,
                                                   ).toLocaleDateString()
                                                 : '—'}
                                         </td>
@@ -106,11 +115,6 @@ export default function DecisionsIndex({
     );
 }
 
-DecisionsIndex.layout = {
-    breadcrumbs: [
-        {
-            title: 'Decision records',
-            href: index(),
-        },
-    ],
+VettingIndex.layout = {
+    breadcrumbs: [{ title: 'Vetting log', href: index() }],
 };

@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FileText, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BookOpen,
+    ClipboardCheck,
+    FileText,
+    FolderGit2,
+    LayoutGrid,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +21,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as decisionsIndex } from '@/routes/decisions';
+import { index as vettingIndex } from '@/routes/vetting';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -27,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: 'Decisions',
         href: decisionsIndex(),
         icon: FileText,
+    },
+    {
+        title: 'Vetting',
+        href: vettingIndex(),
+        icon: ClipboardCheck,
     },
 ];
 

@@ -1,8 +1,9 @@
 import { Head } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { index, update } from '@/routes/decisions';
+import type { SelectOption } from '@/types';
 import DecisionForm from './decision-form';
-import type { DecisionRecord, SelectOption } from './types';
+import type { DecisionRecord } from './types';
 
 export default function EditDecision({
     record,
@@ -16,7 +17,10 @@ export default function EditDecision({
             <Head title={`Edit ${record.document_id}`} />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <Heading title={`Edit ${record.document_id}`} description={record.title} />
+                <Heading
+                    title={`Edit ${record.document_id}`}
+                    description={record.title}
+                />
 
                 <DecisionForm
                     record={record}
