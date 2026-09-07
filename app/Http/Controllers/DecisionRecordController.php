@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Actions\RenderDecisionRecordMarkdown;
+use App\Actions\SupersedeDecisionRecord;
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\DecisionRelationshipType;
 use App\Enums\DecisionStatus;
 use App\Http\Requests\Decisions\StoreDecisionRecordRequest;
+use App\Http\Requests\Decisions\SupersedeDecisionRecordRequest;
 use App\Http\Requests\Decisions\UpdateDecisionRecordRequest;
 use App\Models\DecisionRecord;
 use Illuminate\Http\RedirectResponse;
@@ -98,6 +100,26 @@ class DecisionRecordController extends Controller
                 ->orderBy('sequence')
                 ->get(['id', 'project_prefix', 'category', 'sequence', 'title']),
         ]);
+    }
+
+    /**
+     * Start the decision that replaces this one, and link the two.
+     */
+    public function supersede(
+        SupersedeDecisionRecordRequest $request,
+        DecisionRecord $decisionRecord,
+        SupersedeDecisionRecord $supersede,
+    ): RedirectResponse {
+        $successor = $supersede($decisionRecord, $request->supersession());
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $request->supersession()['scope_note'] === null
+                ? __('Superseded. Write the replacement.')
+                : __('Partly superseded. The earlier record still stands.'),
+        ]);
+
+        return to_route('decisions.edit', $successor);
     }
 
     /**

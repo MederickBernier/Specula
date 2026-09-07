@@ -15,6 +15,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, edit, exportMethod, index } from '@/routes/decisions';
 import links from '@/routes/decisions/links';
 import type { ItemLinkProps, SelectOption } from '@/types';
+import SupersedeForm from './supersede-form';
 import type { DecisionLink, DecisionRecord } from './types';
 
 type ShowProps = ItemLinkProps & {
@@ -159,6 +160,8 @@ export default function ShowDecision({
                                         <Pencil /> Edit
                                     </Link>
                                 </Button>
+
+                                <SupersedeForm record={record} />
 
                                 <Form {...destroy.form(record.id)}>
                                     <Button type="submit" variant="destructive">

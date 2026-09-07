@@ -46,6 +46,9 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::resource('decisions', DecisionRecordController::class)
         ->parameters(['decisions' => 'decisionRecord']);
 
+    Route::post('decisions/{decisionRecord}/supersede', [DecisionRecordController::class, 'supersede'])
+        ->name('decisions.supersede');
+
     Route::get('decisions/{decisionRecord}/export', [DecisionRecordController::class, 'export'])
         ->name('decisions.export');
 
