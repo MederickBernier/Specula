@@ -4,6 +4,7 @@ use App\Enums\ItemLinkType;
 use App\Models\DecisionRecord;
 use App\Models\ItemLink;
 use App\Models\Prototype;
+use App\Models\RadarItem;
 use App\Models\SecurityNote;
 use App\Models\User;
 use App\Models\VettingItem;
@@ -47,12 +48,27 @@ test('it rejects a module that is not registered', function () {
     $this->post(route('item-links.store'), [
         'source_type' => 'vetting_item',
         'source_id' => $vetting->id,
-        'target_type' => 'radar_item',
+        'target_type' => 'user',
         'target_id' => 1,
         'link_type' => ItemLinkType::RelatedTo->value,
     ])->assertSessionHasErrors('target_type');
 
     expect(ItemLink::count())->toBe(0);
+});
+
+test('a radar item is a registered module', function () {
+    $radar = RadarItem::factory()->relevant()->create();
+    $vetting = VettingItem::factory()->create();
+
+    $this->post(route('item-links.store'), [
+        'source_type' => 'radar_item',
+        'source_id' => $radar->id,
+        'target_type' => 'vetting_item',
+        'target_id' => $vetting->id,
+        'link_type' => ItemLinkType::SpawnedFrom->value,
+    ])->assertSessionHasNoErrors();
+
+    expect(ItemLink::sole()->source->is($radar))->toBeTrue();
 });
 
 test('it rejects an id that does not exist in the named module', function () {

@@ -6,6 +6,7 @@ import {
     FlaskConical,
     FolderGit2,
     LayoutGrid,
+    Radar,
     ShieldAlert,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -24,6 +25,7 @@ import {
 import { dashboard } from '@/routes';
 import { index as decisionsIndex } from '@/routes/decisions';
 import { index as prototypesIndex } from '@/routes/prototypes';
+import { index as radarIndex } from '@/routes/radar';
 import { index as securityNotesIndex } from '@/routes/security-notes';
 import { index as vettingIndex } from '@/routes/vetting';
 import type { NavItem } from '@/types';
@@ -53,6 +55,11 @@ const mainNavItems: NavItem[] = [
         title: 'Security',
         href: securityNotesIndex(),
         icon: ShieldAlert,
+    },
+    {
+        title: 'Radar',
+        href: radarIndex(),
+        icon: Radar,
     },
 ];
 

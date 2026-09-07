@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
+use App\Http\Controllers\FeedSourceController;
 use App\Http\Controllers\ItemLinkController;
 use App\Http\Controllers\PrototypeController;
+use App\Http\Controllers\RadarItemController;
 use App\Http\Controllers\SecurityNoteController;
 use App\Http\Controllers\VettingItemController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +28,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->parameters(['vetting' => 'vettingItem']);
 
     Route::resource('prototypes', PrototypeController::class);
+
+    Route::get('radar', [RadarItemController::class, 'index'])->name('radar.index');
+    Route::get('radar/{radarItem}', [RadarItemController::class, 'show'])
+        ->whereNumber('radarItem')
+        ->name('radar.show');
+    Route::patch('radar/{radarItem}', [RadarItemController::class, 'triage'])->name('radar.triage');
+
+    Route::get('radar-feeds', [FeedSourceController::class, 'index'])->name('radar.feeds.index');
+    Route::post('radar-feeds', [FeedSourceController::class, 'store'])->name('radar.feeds.store');
+    Route::put('radar-feeds/{feedSource}', [FeedSourceController::class, 'update'])
+        ->name('radar.feeds.update');
+    Route::delete('radar-feeds/{feedSource}', [FeedSourceController::class, 'destroy'])
+        ->name('radar.feeds.destroy');
+    Route::post('radar-feeds/{feedSource}/fetch', [FeedSourceController::class, 'fetch'])
+        ->name('radar.feeds.fetch');
 
     Route::post('item-links', [ItemLinkController::class, 'store'])->name('item-links.store');
     Route::delete('item-links/{itemLink}', [ItemLinkController::class, 'destroy'])

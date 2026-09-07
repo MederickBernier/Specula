@@ -46,6 +46,7 @@ class ItemLink extends Model
             'vetting_item' => VettingItem::class,
             'prototype' => Prototype::class,
             'security_note' => SecurityNote::class,
+            'radar_item' => RadarItem::class,
         ];
     }
 
