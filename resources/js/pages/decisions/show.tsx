@@ -4,6 +4,7 @@ import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import ItemLinks from '@/components/item-links';
 import { Markdown, MarkdownSection } from '@/components/markdown';
+import MarkdownExport from '@/components/markdown-export';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +12,13 @@ import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 import { usePermissions } from '@/hooks/use-permissions';
-import { destroy, edit, index } from '@/routes/decisions';
+import { destroy, edit, exportMethod, index } from '@/routes/decisions';
 import links from '@/routes/decisions/links';
 import type { ItemLinkProps, SelectOption } from '@/types';
 import type { DecisionLink, DecisionRecord } from './types';
 
 type ShowProps = ItemLinkProps & {
+    markdown: string;
     record: DecisionRecord & {
         outgoing_links: DecisionLink[];
         incoming_links: DecisionLink[];
@@ -127,6 +129,7 @@ function LinkRows({
 export default function ShowDecision({
     record,
     html,
+    markdown,
     relationshipTypes,
     linkTargets,
     ...crossModuleLinks
@@ -143,21 +146,28 @@ export default function ShowDecision({
                         title={`${record.document_id} — ${record.title}`}
                     />
 
-                    {canWrite && (
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
-                                <Link href={edit(record.id)}>
-                                    <Pencil /> Edit
-                                </Link>
-                            </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <MarkdownExport
+                            downloadUrl={exportMethod(record.id).url}
+                            markdown={markdown}
+                        />
 
-                            <Form {...destroy.form(record.id)}>
-                                <Button type="submit" variant="destructive">
-                                    <Trash2 /> Delete
+                        {canWrite && (
+                            <>
+                                <Button asChild variant="outline">
+                                    <Link href={edit(record.id)}>
+                                        <Pencil /> Edit
+                                    </Link>
                                 </Button>
-                            </Form>
-                        </div>
-                    )}
+
+                                <Form {...destroy.form(record.id)}>
+                                    <Button type="submit" variant="destructive">
+                                        <Trash2 /> Delete
+                                    </Button>
+                                </Form>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-4">

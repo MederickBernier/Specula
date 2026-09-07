@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RenderProjectMarkdown;
 use App\Concerns\RendersMarkdown;
 use App\Http\Requests\Projects\StoreProjectRequest;
 use App\Models\Project;
@@ -9,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class ProjectController extends Controller
 {
@@ -85,6 +87,17 @@ class ProjectController extends Controller
                     'updated_at' => $note->updated_at,
                 ])
                 ->all(),
+        ]);
+    }
+
+    /**
+     * Download the project as one markdown document.
+     */
+    public function export(Project $project, RenderProjectMarkdown $render): HttpResponse
+    {
+        return response($render($project), 200, [
+            'Content-Type' => 'text/markdown; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$render->filename($project).'"',
         ]);
     }
 

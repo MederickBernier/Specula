@@ -24,6 +24,9 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 
     Route::resource('projects', ProjectController::class);
 
+    Route::get('projects/{project}/export', [ProjectController::class, 'export'])
+        ->name('projects.export');
+
     Route::patch('projects/{project}/archive', [ProjectController::class, 'archive'])
         ->name('projects.archive');
 
@@ -36,6 +39,9 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 
     Route::resource('decisions', DecisionRecordController::class)
         ->parameters(['decisions' => 'decisionRecord']);
+
+    Route::get('decisions/{decisionRecord}/export', [DecisionRecordController::class, 'export'])
+        ->name('decisions.export');
 
     Route::post('decisions/{decisionRecord}/links', [DecisionLinkController::class, 'store'])
         ->name('decisions.links.store');

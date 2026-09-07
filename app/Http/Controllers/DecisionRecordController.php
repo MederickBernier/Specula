@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RenderDecisionRecordMarkdown;
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
@@ -15,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class DecisionRecordController extends Controller
 {
@@ -83,6 +85,9 @@ class DecisionRecordController extends Controller
 
         return Inertia::render('decisions/show', [
             'record' => $decisionRecord,
+            // Rendered here so the copy button needs no round trip; the
+            // download route renders the same document.
+            'markdown' => app(RenderDecisionRecordMarkdown::class)($decisionRecord),
             ...$this->itemLinkProps($decisionRecord),
             'html' => $this->renderRecordMarkdown($decisionRecord),
             'relationshipTypes' => DecisionRelationshipType::options(),
@@ -92,6 +97,17 @@ class DecisionRecordController extends Controller
                 ->orderBy('category')
                 ->orderBy('sequence')
                 ->get(['id', 'project_prefix', 'category', 'sequence', 'title']),
+        ]);
+    }
+
+    /**
+     * Download the record as the markdown document it was written as.
+     */
+    public function export(DecisionRecord $decisionRecord, RenderDecisionRecordMarkdown $render): HttpResponse
+    {
+        return response($render($decisionRecord), 200, [
+            'Content-Type' => 'text/markdown; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$render->filename($decisionRecord).'"',
         ]);
     }
 
