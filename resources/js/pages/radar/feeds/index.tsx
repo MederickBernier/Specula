@@ -3,6 +3,7 @@ import { ArrowLeft, RefreshCw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import ScanStatus from '@/components/scan-status';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -118,9 +119,13 @@ function FeedForm({
 export default function FeedsIndex({
     feeds,
     feedTypes,
+    lastScanAt,
+    scanOverdue,
 }: {
     feeds: FeedSource[];
     feedTypes: SelectOption[];
+    lastScanAt: string | null;
+    scanOverdue: boolean;
 }) {
     const { canWrite } = usePermissions();
     const [editing, setEditing] = useState<number | null>(null);
@@ -142,6 +147,8 @@ export default function FeedsIndex({
                         </Link>
                     </Button>
                 </div>
+
+                <ScanStatus lastScanAt={lastScanAt} overdue={scanOverdue} />
 
                 {canWrite && (
                     <div className="rounded-xl border border-sidebar-border/70 p-4">

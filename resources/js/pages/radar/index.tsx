@@ -3,6 +3,7 @@ import { ExternalLink, Rss, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
 import Pagination from '@/components/pagination';
+import ScanStatus from '@/components/scan-status';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export default function RadarIndex({
     filters,
     savedSearches,
     pendingCount,
+    lastScanAt,
 }: {
     items: Paginated<RadarItem>;
     statuses: SelectOption[];
@@ -31,6 +33,7 @@ export default function RadarIndex({
     filters: Filters;
     savedSearches: SavedSearch[];
     pendingCount: number;
+    lastScanAt: string | null;
 }) {
     const [search, setSearch] = useState(filters.q);
 
@@ -72,6 +75,8 @@ export default function RadarIndex({
                         </Link>
                     </Button>
                 </div>
+
+                <ScanStatus lastScanAt={lastScanAt} showButton={false} />
 
                 <div className="flex flex-wrap items-center gap-2">
                     {statusFilters.map((option) => (

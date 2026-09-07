@@ -77,6 +77,7 @@ class RadarItemController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name', 'filters']) ?? [],
             'pendingCount' => RadarItem::query()->where('triage_status', TriageStatus::Pending)->count(),
+            'lastScanAt' => FeedSource::query()->where('is_active', true)->max('last_fetched_at'),
         ]);
     }
 

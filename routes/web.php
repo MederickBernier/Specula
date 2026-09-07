@@ -79,6 +79,8 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
         ->name('radar.feeds.update');
     Route::delete('radar-feeds/{feedSource}', [FeedSourceController::class, 'destroy'])
         ->name('radar.feeds.destroy');
+    Route::post('radar-feeds/fetch', [FeedSourceController::class, 'fetchAll'])
+        ->name('radar.feeds.fetch-all');
     Route::post('radar-feeds/{feedSource}/fetch', [FeedSourceController::class, 'fetch'])
         ->name('radar.feeds.fetch');
 
