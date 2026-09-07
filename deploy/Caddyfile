@@ -1,0 +1,49 @@
+# Caddy terminates TLS and serves the built assets; PHP requests go to the
+# php-fpm container. APP_DOMAIN and TLS_EMAIL come from the environment, so the
+# same file works for a real domain and for a local smoke test.
+#
+# Set APP_DOMAIN=localhost to get a self-signed certificate instead of trying
+# to reach Let's Encrypt from a machine with no public DNS.
+
+{
+	email {$TLS_EMAIL}
+	# Caddy's admin API is not needed here and would otherwise listen inside
+	# the container network.
+	admin off
+}
+
+{$APP_DOMAIN} {
+	root * /srv/public
+
+	encode zstd gzip
+
+	header {
+		# HTTPS is the only way in, so tell browsers to remember that.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Vite writes content-hashed filenames, so these can be cached hard.
+	@immutable path /build/assets/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# Never serve the dotfiles that end up next to the code.
+	@forbidden path /.env* /.git/* /storage/* /vendor/*
+	respond @forbidden 404
+
+	php_fastcgi app:9000 {
+		# The app container mounts the same volume at the same path, so the
+		# SCRIPT_FILENAME Caddy sends resolves inside php-fpm too.
+		root /srv/public
+	}
+
+	file_server
+
+	log {
+		output stdout
+		format console
+	}
+}

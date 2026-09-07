@@ -1,0 +1,95 @@
+# Production stack for the DigitalOcean droplet. Deliberately separate from
+# Sail's compose.yaml, which bind-mounts source and is tuned for development.
+#
+#   docker compose -f compose.prod.yaml up -d --build
+#
+# Expects a .env next to this file holding at least:
+#   APP_KEY, APP_URL, APP_DOMAIN, TLS_EMAIL, DB_PASSWORD
+# See .env.production.example.
+
+services:
+    app:
+        build:
+            context: .
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            APP_ENV: production
+            APP_DEBUG: 'false'
+            DB_CONNECTION: pgsql
+            DB_HOST: pgsql
+            DB_PORT: 5432
+            # Only this container migrates and warms caches on boot.
+            RUN_RELEASE_TASKS: 'true'
+        volumes:
+            - public_assets:/srv/public
+            - storage:/srv/storage
+        depends_on:
+            pgsql:
+                condition: service_healthy
+
+    # Runs the hourly feed fetch. Without it the radar never pulls anything.
+    scheduler:
+        build:
+            context: .
+        restart: unless-stopped
+        env_file: .env
+        environment:
+            APP_ENV: production
+            APP_DEBUG: 'false'
+            DB_CONNECTION: pgsql
+            DB_HOST: pgsql
+            DB_PORT: 5432
+        command: ['php', 'artisan', 'schedule:work']
+        volumes:
+            - storage:/srv/storage
+        depends_on:
+            app:
+                condition: service_started
+
+    caddy:
+        image: caddy:2-alpine
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+            - '443:443/udp'
+        environment:
+            APP_DOMAIN: ${APP_DOMAIN}
+            TLS_EMAIL: ${TLS_EMAIL}
+        volumes:
+            - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+            # Serves this release's assets; written by the app container.
+            - public_assets:/srv/public:ro
+            # Certificates live here. Losing this volume means re-issuing them,
+            # which Let's Encrypt rate-limits.
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            - app
+
+    pgsql:
+        image: postgres:18-alpine
+        restart: unless-stopped
+        # No published ports: reachable only from the other containers.
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-specula}
+            POSTGRES_USER: ${DB_USERNAME:-specula}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+        volumes:
+            # Postgres 18 wants a single mount at /var/lib/postgresql and puts
+            # the cluster in a versioned subdirectory of it. Mounting
+            # /var/lib/postgresql/data instead makes the image refuse to start.
+            - pgsql_data:/var/lib/postgresql
+        healthcheck:
+            test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE:-specula}', '-U', '${DB_USERNAME:-specula}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    pgsql_data:
+    public_assets:
+    storage:
+    caddy_data:
+    caddy_config:
