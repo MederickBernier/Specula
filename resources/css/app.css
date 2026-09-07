@@ -69,35 +69,42 @@
  * is what keeps a dropdown from rendering against the wrong background.
  */
 :root {
-    color-scheme: light;
+    color-scheme: dark;
 
-    --background: #f8fafc; /* slate-50 */
-    --foreground: #0f172a; /* slate-900 */
-    --card: #ffffff;
-    --card-foreground: #0f172a;
-    --popover: #ffffff;
-    --popover-foreground: #0f172a;
-    --primary: #334155; /* slate-700 */
-    --primary-foreground: #f8fafc;
-    --secondary: #f1f5f9; /* slate-100 */
-    --secondary-foreground: #1e293b; /* slate-800 */
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b; /* slate-500 */
-    --accent: #e2e8f0; /* slate-200 */
-    --accent-foreground: #0f172a;
-    --destructive: #b91c1c; /* red-700, readable on a light surface */
-    --destructive-foreground: #fef2f2;
-    --border: #e2e8f0;
-    --input: #cbd5e1; /* slate-300, so a field edge is visible against the card */
-    --ring: #94a3b8; /* slate-400 */
+    --background: #0f172a; /* slate-900 */
+    --foreground: #f1f5f9; /* slate-100 */
+    --card: #1e293b; /* slate-800, lifted off the page */
+    --card-foreground: #f1f5f9;
+    --popover: #1e293b;
+    --popover-foreground: #f1f5f9;
+    --primary: #cbd5e1; /* slate-300 */
+    --primary-foreground: #0f172a; /* dark ink on a light button */
+    --secondary: #334155; /* slate-700 */
+    --secondary-foreground: #f1f5f9;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8; /* slate-400 */
+    --accent: #334155;
+    --accent-foreground: #f1f5f9;
+    /* Two reds, because they do different jobs. The first is a surface a
+       button is painted with, dark enough to carry white at 6.5:1. The second
+       is the red that appears as text on a dark surface, light enough to clear
+       AA on both the page and a card. One value cannot be both. */
+    --destructive: #b91c1c; /* red-700 */
+    --destructive-foreground: #f87171; /* red-400 */
+    /* Dividers rather than component edges, so they stay quiet. */
+    --border: #334155;
+    /* slate-500: a field edge is a UI boundary, so it owes 3:1 against the card
+       it sits on, which slate-600 did not reach. */
+    --input: #64748b;
+    --ring: #94a3b8;
     --radius: 0.625rem;
-    --sidebar: #f1f5f9;
-    --sidebar-foreground: #0f172a;
-    --sidebar-primary: #334155;
-    --sidebar-primary-foreground: #f8fafc;
-    --sidebar-accent: #e2e8f0;
-    --sidebar-accent-foreground: #0f172a;
-    --sidebar-border: #e2e8f0;
+    --sidebar: #0b1220; /* a shade under the page, so the rail reads as behind it */
+    --sidebar-foreground: #f1f5f9;
+    --sidebar-primary: #cbd5e1;
+    --sidebar-primary-foreground: #0f172a;
+    --sidebar-accent: #334155;
+    --sidebar-accent-foreground: #f1f5f9;
+    --sidebar-border: #334155;
     --sidebar-ring: #94a3b8;
 }
 
@@ -113,18 +120,18 @@
 
 /*
  * Chart palette, from the data-viz reference palette and run through its
- * validator against this surface: lightness, chroma, CVD separation and the
+ * validator against this surface (the slate-800 card): lightness, chroma, CVD separation and the
  * normal-vision floor all pass on the adjacent pairlist these charts use.
  *
- * Three of the five sit under 3:1 against a light surface, which the validator
- * reports as requiring relief, so every chart here names and counts its
- * segments rather than leaving identity to colour.
+ * All five clear 3:1 against this surface, so no relief is owed; the segments
+ * are named and counted underneath anyway, which is what keeps identity off
+ * colour alone for a reader who cannot separate two of the hues.
  */
 .viz-root {
-    --series-1: #2a78d6;
-    --series-2: #eb6834;
-    --series-3: #1baf7a;
-    --series-4: #eda100;
-    --series-5: #e87ba4;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
     --surface-muted: color-mix(in oklab, currentColor 12%, transparent);
 }

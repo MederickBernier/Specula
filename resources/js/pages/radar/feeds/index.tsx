@@ -187,7 +187,7 @@ export default function FeedsIndex({
                                         </p>
 
                                         {feed.last_error && (
-                                            <p className="text-sm text-destructive">
+                                            <p className="text-sm text-destructive-foreground">
                                                 {feed.last_error}
                                             </p>
                                         )}

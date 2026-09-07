@@ -238,7 +238,7 @@ export default function Dashboard({
                                     >
                                         {feed.name}
                                     </Link>
-                                    <p className="text-xs text-destructive">
+                                    <p className="text-xs text-destructive-foreground">
                                         {feed.last_error}
                                     </p>
                                 </li>

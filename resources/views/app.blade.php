@@ -7,11 +7,11 @@
         {{-- One theme. color-scheme is declared here as well as in the stylesheet
              so form controls and scrollbars are drawn correctly on the very first
              paint, before the stylesheet has loaded. --}}
-        <meta name="color-scheme" content="light">
+        <meta name="color-scheme" content="dark">
 
         <style>
             html {
-                background-color: #f8fafc;
+                background-color: #0f172a;
             }
         </style>
 

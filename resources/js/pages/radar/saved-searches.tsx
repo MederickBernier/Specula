@@ -128,7 +128,7 @@ export default function SavedSearches({
                         <Bookmark /> Save search
                     </Button>
                     {errors.name && (
-                        <p className="text-sm text-destructive">
+                        <p className="text-sm text-destructive-foreground">
                             {errors.name}
                         </p>
                     )}

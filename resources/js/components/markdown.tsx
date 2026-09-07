@@ -11,7 +11,7 @@ export function Markdown({ html }: { html: string | null }) {
 
     return (
         <div
-            className="prose prose-sm max-w-none [&_a]:underline [&_code]:font-mono [&_li]:my-1 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
+            className="prose prose-invert prose-sm max-w-none [&_a]:underline [&_code]:font-mono [&_li]:my-1 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: html }}
         />
     );
