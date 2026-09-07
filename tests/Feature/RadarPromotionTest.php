@@ -84,7 +84,7 @@ test('the queue says which items were already promoted', function () {
     $this->get(route('radar.index'))
         ->assertOk()
         ->assertInertia(function (AssertableInertia $page) use ($promoted) {
-            $items = collect($page->toArray()['props']['items'])->keyBy('id');
+            $items = collect($page->toArray()['props']['items']['data'])->keyBy('id');
 
             expect($items[$promoted->id]['promoted'])->toBeTrue()
                 ->and($items->firstWhere('id', '!=', $promoted->id)['promoted'])->toBeFalse();

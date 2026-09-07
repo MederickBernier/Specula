@@ -7,6 +7,7 @@ use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\TriageStatus;
 use App\Http\Requests\Radar\TriageRadarItemRequest;
+use App\Models\FeedSource;
 use App\Models\RadarItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,10 +24,17 @@ class RadarItemController extends Controller
      *
      * Discarded items are hidden by default rather than deleted, so a
      * too-hasty dismissal can still be found and undone.
+     *
+     * A busy feed can produce hundreds of items in one fetch, so the queue is
+     * paginated and searchable. Search covers the title and the summary, which
+     * is what "anything about Postgres" actually means here, and is why there
+     * is no topic taxonomy to maintain.
      */
     public function index(Request $request): Response
     {
         $status = TriageStatus::tryFrom((string) $request->query('status'));
+        $search = trim((string) $request->query('q'));
+        $feedId = (int) $request->query('feed');
 
         return Inertia::render('radar/index', [
             'items' => RadarItem::query()
@@ -35,11 +43,32 @@ class RadarItemController extends Controller
                     ->where('target_type', 'vetting_item')])
                 ->when($status, fn ($query) => $query->where('triage_status', $status))
                 ->when($status === null, fn ($query) => $query->visible())
+                ->when($feedId > 0, fn ($query) => $query->where('feed_source_id', $feedId))
+                ->when($search !== '', fn ($query) => $query->where(
+                    // ponytail: unindexed ILIKE scan. Fine for one person's
+                    // reading list; add a tsvector index if it ever drags.
+                    fn ($match) => $match
+                        ->where('title', 'ilike', '%'.$search.'%')
+                        ->orWhere('summary', 'ilike', '%'.$search.'%'),
+                ))
                 ->orderByDesc('published_at')
                 ->orderByDesc('id')
-                ->get(),
+                ->paginate(25)
+                ->withQueryString(),
             'statuses' => TriageStatus::options(),
-            'filter' => $status?->value,
+            'feeds' => FeedSource::query()
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn (FeedSource $feed): array => [
+                    'value' => (string) $feed->id,
+                    'label' => $feed->name,
+                ])
+                ->all(),
+            'filters' => [
+                'status' => $status?->value,
+                'q' => $search,
+                'feed' => $feedId > 0 ? (string) $feedId : '',
+            ],
             'pendingCount' => RadarItem::query()->where('triage_status', TriageStatus::Pending)->count(),
         ]);
     }

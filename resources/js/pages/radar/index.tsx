@@ -1,27 +1,56 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ExternalLink, Rss } from 'lucide-react';
+import { ExternalLink, Rss, Search, X } from 'lucide-react';
+import { useState } from 'react';
 import Heading from '@/components/heading';
+import Pagination from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { NativeSelect } from '@/components/ui/native-select';
 import { index, show } from '@/routes/radar';
 import { index as feedsIndex } from '@/routes/radar/feeds';
-import type { SelectOption } from '@/types';
+import type { Paginated, SelectOption } from '@/types';
 import PromoteButton from './promote-button';
 import TriageForm from './triage-form';
 import type { RadarItem } from './types';
 
+type Filters = { status: string | null; q: string; feed: string };
+
 export default function RadarIndex({
     items,
     statuses,
-    filter,
+    feeds,
+    filters,
     pendingCount,
 }: {
-    items: RadarItem[];
+    items: Paginated<RadarItem>;
     statuses: SelectOption[];
-    filter: string | null;
+    feeds: SelectOption[];
+    filters: Filters;
     pendingCount: number;
 }) {
-    const filters = [{ value: '', label: 'Open queue' }, ...statuses];
+    const [search, setSearch] = useState(filters.q);
+
+    const statusFilters = [{ value: '', label: 'Open queue' }, ...statuses];
+    const isFiltered = !!filters.q || !!filters.feed || !!filters.status;
+
+    /**
+     * Every filter goes through one place so the others survive the change,
+     * and paging always starts again from the first page of the new result.
+     */
+    const applyFilters = (changes: Partial<Filters>) => {
+        const next = { ...filters, ...changes };
+
+        router.get(
+            index().url,
+            {
+                ...(next.status ? { status: next.status } : {}),
+                ...(next.q ? { q: next.q } : {}),
+                ...(next.feed ? { feed: next.feed } : {}),
+            },
+            { preserveScroll: true, preserveState: true, replace: true },
+        );
+    };
 
     return (
         <>
@@ -41,30 +70,18 @@ export default function RadarIndex({
                     </Button>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                    {filters.map((option) => (
+                <div className="flex flex-wrap items-center gap-2">
+                    {statusFilters.map((option) => (
                         <Button
                             key={option.value || 'open'}
                             size="sm"
                             variant={
-                                (filter ?? '') === option.value
+                                (filters.status ?? '') === option.value
                                     ? 'default'
                                     : 'outline'
                             }
                             onClick={() =>
-                                router.get(
-                                    index(
-                                        option.value
-                                            ? {
-                                                  query: {
-                                                      status: option.value,
-                                                  },
-                                              }
-                                            : {},
-                                    ),
-                                    {},
-                                    { preserveScroll: true },
-                                )
+                                applyFilters({ status: option.value })
                             }
                         >
                             {option.label}
@@ -72,13 +89,69 @@ export default function RadarIndex({
                     ))}
                 </div>
 
-                {items.length === 0 ? (
+                <div className="flex flex-wrap items-end gap-3">
+                    <form
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            applyFilters({ q: search });
+                        }}
+                        className="flex items-end gap-2"
+                    >
+                        <Input
+                            type="search"
+                            aria-label="Search radar items"
+                            placeholder="Search title and summary"
+                            className="w-64"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                        />
+                        <Button type="submit" variant="outline" size="sm">
+                            <Search /> Search
+                        </Button>
+                    </form>
+
+                    {feeds.length > 0 && (
+                        <NativeSelect
+                            aria-label="Filter by feed"
+                            className="w-56"
+                            options={[
+                                { value: '', label: 'All feeds' },
+                                ...feeds,
+                            ]}
+                            value={filters.feed}
+                            onChange={(event) =>
+                                applyFilters({ feed: event.target.value })
+                            }
+                        />
+                    )}
+
+                    {isFiltered && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                                setSearch('');
+                                router.get(
+                                    index().url,
+                                    {},
+                                    { preserveScroll: true },
+                                );
+                            }}
+                        >
+                            <X /> Clear
+                        </Button>
+                    )}
+                </div>
+
+                {items.data.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                        Nothing here. Add a feed source and fetch it.
+                        {isFiltered
+                            ? 'Nothing matches those filters.'
+                            : 'Nothing here. Add a feed source and fetch it.'}
                     </p>
                 ) : (
                     <ul className="space-y-3">
-                        {items.map((item) => (
+                        {items.data.map((item) => (
                             <li
                                 key={item.id}
                                 className="flex flex-col gap-4 rounded-xl border border-sidebar-border/70 p-4 md:flex-row md:items-start md:justify-between dark:border-sidebar-border"
@@ -140,6 +213,8 @@ export default function RadarIndex({
                         ))}
                     </ul>
                 )}
+
+                <Pagination page={items} />
             </div>
         </>
     );

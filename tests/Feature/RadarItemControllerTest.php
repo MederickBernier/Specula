@@ -27,9 +27,9 @@ test('the queue hides discarded items by default', function () {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('radar/index')
-            ->has('items', 3)
+            ->has('items.data', 3)
             ->where('pendingCount', 2)
-            ->where('filter', null));
+            ->where('filters.status', null));
 });
 
 test('discarded items can still be found on purpose', function () {
@@ -39,8 +39,8 @@ test('discarded items can still be found on purpose', function () {
     $this->get(route('radar.index', ['status' => TriageStatus::Discarded->value]))
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
-            ->has('items', 1)
-            ->where('filter', 'discarded'));
+            ->has('items.data', 1)
+            ->where('filters.status', 'discarded'));
 });
 
 test('marking an item relevant records the note and the triage date', function () {
@@ -165,4 +165,83 @@ test('a feed url cannot be added twice', function () {
         'feed_type' => 'rss',
         'is_active' => true,
     ])->assertSessionHasErrors('url');
+});
+
+test('the queue is paginated', function () {
+    RadarItem::factory()->count(30)->create();
+
+    $this->get(route('radar.index'))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('items.data', 25)
+            ->where('items.total', 30)
+            ->where('items.current_page', 1)
+            ->where('items.last_page', 2));
+
+    $this->get(route('radar.index', ['page' => 2]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('items.data', 5)
+            ->where('items.current_page', 2));
+});
+
+test('search matches the title and the summary, case-insensitively', function () {
+    RadarItem::factory()->create(['title' => 'Postgres 18 lands', 'summary' => null]);
+    RadarItem::factory()->create(['title' => 'Unrelated', 'summary' => 'Mentions POSTGRES once.']);
+    RadarItem::factory()->create(['title' => 'Nothing to see', 'summary' => 'About queues.']);
+
+    $this->get(route('radar.index', ['q' => 'postgres']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('items.data', 2)
+            ->where('filters.q', 'postgres'));
+});
+
+test('the queue can be narrowed to one feed', function () {
+    $laravel = FeedSource::factory()->create(['name' => 'Laravel News']);
+    $other = FeedSource::factory()->create(['name' => 'Other']);
+
+    RadarItem::factory()->count(2)->create(['feed_source_id' => $laravel->id]);
+    RadarItem::factory()->create(['feed_source_id' => $other->id]);
+
+    $this->get(route('radar.index', ['feed' => $laravel->id]))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->has('items.data', 2)
+            ->where('filters.feed', (string) $laravel->id)
+            ->has('feeds', 2));
+});
+
+test('filters combine, and survive paging', function () {
+    $feed = FeedSource::factory()->create();
+
+    RadarItem::factory()->count(30)->create([
+        'feed_source_id' => $feed->id,
+        'title' => 'Postgres release note',
+    ]);
+    RadarItem::factory()->count(5)->create(['title' => 'Something else']);
+
+    $response = $this->get(route('radar.index', ['q' => 'postgres', 'feed' => $feed->id]));
+
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('items.data', 25)
+        ->where('items.total', 30));
+
+    $next = $response->viewData('page')['props']['items']['next_page_url'];
+
+    expect($next)->toContain('q=postgres')
+        ->and($next)->toContain('feed='.$feed->id);
+});
+
+test('a discarded item stays out of a search of the open queue', function () {
+    RadarItem::factory()->discarded()->create(['title' => 'Postgres, dismissed']);
+    RadarItem::factory()->create(['title' => 'Postgres, open']);
+
+    $this->get(route('radar.index', ['q' => 'postgres']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('items.data', 1));
+
+    $this->get(route('radar.index', ['q' => 'postgres', 'status' => 'discarded']))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->has('items.data', 1));
 });
