@@ -53,7 +53,7 @@ function Group({
                     Nothing filed here yet.
                 </p>
             ) : (
-                <ul className="divide-y divide-sidebar-border/70 rounded-xl border border-sidebar-border/70 dark:divide-sidebar-border dark:border-sidebar-border">
+                <ul className="divide-y divide-sidebar-border/70 rounded-xl border border-sidebar-border/70">
                     {children}
                 </ul>
             )}

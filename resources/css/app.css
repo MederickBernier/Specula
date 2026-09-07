@@ -3,9 +3,9 @@
 @import 'tw-animate-css';
 
 @source '../views';
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-@custom-variant dark (&:is(.dark *));
+/* Documentation, not markup: keeps stray utility names out of the build. */
+@source not '../../.claude';
 
 @theme {
     --font-sans:
@@ -61,75 +61,44 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/*
+ * One theme, built on Tailwind's slate ramp.
+ *
+ * color-scheme is the load-bearing line: a native <select> and its option list
+ * are drawn by the browser, not by our CSS, and they follow this property. It
+ * is what keeps a dropdown from rendering against the wrong background.
+ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
-}
+    color-scheme: light;
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --background: #f8fafc; /* slate-50 */
+    --foreground: #0f172a; /* slate-900 */
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: #334155; /* slate-700 */
+    --primary-foreground: #f8fafc;
+    --secondary: #f1f5f9; /* slate-100 */
+    --secondary-foreground: #1e293b; /* slate-800 */
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b; /* slate-500 */
+    --accent: #e2e8f0; /* slate-200 */
+    --accent-foreground: #0f172a;
+    --destructive: #b91c1c; /* red-700, readable on a light surface */
+    --destructive-foreground: #fef2f2;
+    --border: #e2e8f0;
+    --input: #cbd5e1; /* slate-300, so a field edge is visible against the card */
+    --ring: #94a3b8; /* slate-400 */
+    --radius: 0.625rem;
+    --sidebar: #f1f5f9;
+    --sidebar-foreground: #0f172a;
+    --sidebar-primary: #334155;
+    --sidebar-primary-foreground: #f8fafc;
+    --sidebar-accent: #e2e8f0;
+    --sidebar-accent-foreground: #0f172a;
+    --sidebar-border: #e2e8f0;
+    --sidebar-ring: #94a3b8;
 }
 
 @layer base {
@@ -143,11 +112,13 @@
 }
 
 /*
- * Chart palette. Slots and surfaces come from the data-viz reference palette
- * and were run through its validator: all checks pass in both modes on the
- * adjacent pairlist these charts use. Three light-mode slots sit under 3:1
- * against the surface, so every chart here names and counts its segments
- * rather than relying on colour.
+ * Chart palette, from the data-viz reference palette and run through its
+ * validator against this surface: lightness, chroma, CVD separation and the
+ * normal-vision floor all pass on the adjacent pairlist these charts use.
+ *
+ * Three of the five sit under 3:1 against a light surface, which the validator
+ * reports as requiring relief, so every chart here names and counts its
+ * segments rather than leaving identity to colour.
  */
 .viz-root {
     --series-1: #2a78d6;
@@ -156,22 +127,4 @@
     --series-4: #eda100;
     --series-5: #e87ba4;
     --surface-muted: color-mix(in oklab, currentColor 12%, transparent);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme='light'])) .viz-root {
-        --series-1: #3987e5;
-        --series-2: #d95926;
-        --series-3: #199e70;
-        --series-4: #c98500;
-        --series-5: #d55181;
-    }
-}
-
-:root[data-theme='dark'] .viz-root {
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
 }

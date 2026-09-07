@@ -152,7 +152,7 @@ export default function Users({ users }: { users: ManagedUser[] }) {
                     {users.map((user) => (
                         <li
                             key={user.id}
-                            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-sidebar-border/70 p-3 dark:border-sidebar-border"
+                            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-sidebar-border/70 p-3"
                         >
                             <div>
                                 <div className="flex items-center gap-2">

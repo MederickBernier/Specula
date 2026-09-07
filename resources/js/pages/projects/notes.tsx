@@ -108,7 +108,7 @@ export default function ProjectNotes({
             <h2 className="text-lg font-medium">Notes</h2>
 
             {canWrite && (
-                <div className="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                <div className="rounded-xl border border-sidebar-border/70 p-4">
                     <NoteForm projectId={projectId} />
                 </div>
             )}
@@ -120,7 +120,7 @@ export default function ProjectNotes({
                     {notes.map((note) => (
                         <li
                             key={note.id}
-                            className="space-y-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                            className="space-y-3 rounded-xl border border-sidebar-border/70 p-4"
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div>

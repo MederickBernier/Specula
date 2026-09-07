@@ -72,7 +72,7 @@ export default function ProjectsIndex({
                         {projects.map((project) => (
                             <li
                                 key={project.id}
-                                className="space-y-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                                className="space-y-3 rounded-xl border border-sidebar-border/70 p-4"
                             >
                                 <div className="flex items-center gap-2">
                                     <Badge

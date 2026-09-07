@@ -16,7 +16,10 @@ function NativeSelect({
         <select
             data-slot="native-select"
             className={cn(
-                'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
+                // bg-card rather than transparent: on the slate page a control should read
+                // as a surface you can act on. The option list itself is drawn by the
+                // browser from color-scheme, which the theme sets once.
+                'border-input focus-visible:border-ring focus-visible:ring-ring/50 bg-card h-9 w-full rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
                 className,
             )}
             {...props}

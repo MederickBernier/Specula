@@ -45,7 +45,7 @@ export default function SavedSearches({
                     {savedSearches.map((saved) => (
                         <span
                             key={saved.id}
-                            className="flex items-center gap-1 rounded-full border border-sidebar-border/70 pr-1 pl-3 dark:border-sidebar-border"
+                            className="flex items-center gap-1 rounded-full border border-sidebar-border/70 pr-1 pl-3"
                         >
                             <button
                                 type="button"

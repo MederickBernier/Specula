@@ -59,7 +59,7 @@ export default function VettingIndex({
                         Nothing in the log yet.
                     </p>
                 ) : (
-                    <div className="overflow-x-auto rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div className="overflow-x-auto rounded-xl border border-sidebar-border/70">
                         <table className="w-full text-sm">
                             <thead className="bg-muted/50 text-left">
                                 <tr>
@@ -84,7 +84,7 @@ export default function VettingIndex({
                                 {items.map((item) => (
                                     <tr
                                         key={item.id}
-                                        className="border-t border-sidebar-border/70 dark:border-sidebar-border"
+                                        className="border-t border-sidebar-border/70"
                                     >
                                         <td className="px-4 py-2">
                                             <Link

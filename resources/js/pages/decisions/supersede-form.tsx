@@ -41,7 +41,7 @@ export default function SupersedeForm({ record }: { record: DecisionRecord }) {
                 event.preventDefault();
                 form.submit(supersede(record.id));
             }}
-            className="w-full space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+            className="w-full space-y-4 rounded-xl border border-sidebar-border/70 p-4"
         >
             <h2 className="font-medium">Supersede {record.document_id}</h2>
 

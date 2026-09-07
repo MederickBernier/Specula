@@ -63,7 +63,7 @@ export default function PrototypesIndex({
                         No prototypes yet.
                     </p>
                 ) : (
-                    <div className="overflow-x-auto rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div className="overflow-x-auto rounded-xl border border-sidebar-border/70">
                         <table className="w-full text-sm">
                             <thead className="bg-muted/50 text-left">
                                 <tr>
@@ -91,7 +91,7 @@ export default function PrototypesIndex({
                                 {prototypes.map((prototype) => (
                                     <tr
                                         key={prototype.id}
-                                        className="border-t border-sidebar-border/70 dark:border-sidebar-border"
+                                        className="border-t border-sidebar-border/70"
                                     >
                                         <td className="px-4 py-2">
                                             <Link

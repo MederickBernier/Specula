@@ -115,7 +115,7 @@ export default function Search({
                                         </Badge>
                                     </h2>
 
-                                    <ul className="divide-y divide-sidebar-border/70 rounded-xl border border-sidebar-border/70 dark:divide-sidebar-border dark:border-sidebar-border">
+                                    <ul className="divide-y divide-sidebar-border/70 rounded-xl border border-sidebar-border/70">
                                         {group.results.map((result) => (
                                             <li
                                                 key={result.url + result.label}

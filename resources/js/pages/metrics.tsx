@@ -54,7 +54,7 @@ function Figure({
     hint?: string;
 }) {
     return (
-        <div className="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+        <div className="rounded-xl border border-sidebar-border/70 p-4">
             <p className="text-3xl font-semibold tabular-nums">
                 {value === null ? (
                     <span className="text-xl font-normal text-muted-foreground">

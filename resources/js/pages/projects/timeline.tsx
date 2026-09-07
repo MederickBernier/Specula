@@ -77,7 +77,7 @@ export default function ProjectTimeline({
                                     {month.month}
                                 </h2>
 
-                                <ul className="space-y-4 border-l border-sidebar-border/70 pl-4 dark:border-sidebar-border">
+                                <ul className="space-y-4 border-l border-sidebar-border/70 pl-4">
                                     {month.events.map((event, index) => (
                                         <li
                                             key={`${event.date}-${event.kind}-${event.label}-${index}`}

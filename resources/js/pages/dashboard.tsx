@@ -55,7 +55,7 @@ function QueueCard({
     children: ReactNode;
 }) {
     return (
-        <section className="space-y-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+        <section className="space-y-3 rounded-xl border border-sidebar-border/70 p-4">
             <h2 className="flex items-center gap-2 font-medium">
                 {icon} {title}
             </h2>
@@ -93,7 +93,7 @@ export default function Dashboard({
                         <Link
                             key={stat.key}
                             href={stat.url}
-                            className="rounded-xl border border-sidebar-border/70 p-4 transition-colors hover:bg-muted/50 dark:border-sidebar-border"
+                            className="rounded-xl border border-sidebar-border/70 p-4 transition-colors hover:bg-muted/50"
                         >
                             <p className="text-3xl font-semibold tabular-nums">
                                 {stat.value}

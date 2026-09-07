@@ -30,7 +30,7 @@ function LinkRows({
                     {links.map((link) => (
                         <li
                             key={link.id}
-                            className="flex items-start justify-between gap-4 rounded-lg border border-sidebar-border/70 p-3 dark:border-sidebar-border"
+                            className="flex items-start justify-between gap-4 rounded-lg border border-sidebar-border/70 p-3"
                         >
                             <div className="space-y-1">
                                 <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -148,7 +148,7 @@ export default function ItemLinks({
                             onSuccess: () => reset('note'),
                         });
                     }}
-                    className="space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                    className="space-y-4 rounded-xl border border-sidebar-border/70 p-4"
                 >
                     <h3 className="font-medium">Add a link</h3>
 

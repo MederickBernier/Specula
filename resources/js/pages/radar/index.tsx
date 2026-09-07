@@ -163,7 +163,7 @@ export default function RadarIndex({
                         {items.data.map((item) => (
                             <li
                                 key={item.id}
-                                className="flex flex-col gap-4 rounded-xl border border-sidebar-border/70 p-4 md:flex-row md:items-start md:justify-between dark:border-sidebar-border"
+                                className="flex flex-col gap-4 rounded-xl border border-sidebar-border/70 p-4 md:flex-row md:items-start md:justify-between"
                             >
                                 <div className="space-y-1">
                                     <div className="flex flex-wrap items-center gap-2">

@@ -295,7 +295,7 @@ export default function DecisionForm({
                 {data.options.map((option, index) => (
                     <div
                         key={index}
-                        className="space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                        className="space-y-4 rounded-xl border border-sidebar-border/70 p-4"
                     >
                         <div className="flex items-start gap-4">
                             <div className="grid flex-1 gap-2">

@@ -144,7 +144,7 @@ export default function FeedsIndex({
                 </div>
 
                 {canWrite && (
-                    <div className="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                    <div className="rounded-xl border border-sidebar-border/70 p-4">
                         <FeedForm feedTypes={feedTypes} />
                     </div>
                 )}
@@ -158,7 +158,7 @@ export default function FeedsIndex({
                         {feeds.map((feed) => (
                             <li
                                 key={feed.id}
-                                className="space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                                className="space-y-4 rounded-xl border border-sidebar-border/70 p-4"
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-4">
                                     <div className="space-y-1">

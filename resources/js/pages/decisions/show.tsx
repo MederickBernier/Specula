@@ -76,7 +76,7 @@ function LinkRows({
                         return (
                             <li
                                 key={link.id}
-                                className="flex items-start justify-between gap-4 rounded-lg border border-sidebar-border/70 p-3 dark:border-sidebar-border"
+                                className="flex items-start justify-between gap-4 rounded-lg border border-sidebar-border/70 p-3"
                             >
                                 <div className="space-y-1">
                                     <div className="flex flex-wrap items-center gap-2">
@@ -217,7 +217,7 @@ export default function ShowDecision({
                         record.options.map((option) => (
                             <div
                                 key={option.id}
-                                className="space-y-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                                className="space-y-3 rounded-xl border border-sidebar-border/70 p-4"
                             >
                                 <div className="flex items-center gap-2">
                                     <h3 className="font-medium">
@@ -286,7 +286,7 @@ export default function ShowDecision({
                             {...links.store.form(record.id)}
                             options={{ preserveScroll: true }}
                             resetOnSuccess
-                            className="space-y-4 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
+                            className="space-y-4 rounded-xl border border-sidebar-border/70 p-4"
                         >
                             {({ processing, errors }) => (
                                 <>
