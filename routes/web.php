@@ -3,6 +3,7 @@
 use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
 use App\Http\Controllers\PrototypeController;
+use App\Http\Controllers\SecurityNoteController;
 use App\Http\Controllers\VettingItemController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->parameters(['vetting' => 'vettingItem']);
 
     Route::resource('prototypes', PrototypeController::class);
+
+    // Named security-notes rather than security: routes/settings.php already
+    // owns the security.* names for the account security page.
+    Route::resource('security-notes', SecurityNoteController::class)
+        ->parameters(['security-notes' => 'securityNote']);
 });
 
 require __DIR__.'/settings.php';
