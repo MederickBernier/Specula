@@ -38,6 +38,8 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
         ->whereNumber('radarItem')
         ->name('radar.show');
     Route::patch('radar/{radarItem}', [RadarItemController::class, 'triage'])->name('radar.triage');
+    Route::post('radar/{radarItem}/promote', [RadarItemController::class, 'promote'])
+        ->name('radar.promote');
 
     Route::get('radar-feeds', [FeedSourceController::class, 'index'])->name('radar.feeds.index');
     Route::post('radar-feeds', [FeedSourceController::class, 'store'])->name('radar.feeds.store');

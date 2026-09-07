@@ -16,6 +16,7 @@ function rssFeed(): string
     <item>
       <title>Postgres 18 is out</title>
       <link>https://example.test/postgres-18</link>
+      <description>&lt;p&gt;The &lt;b&gt;release&lt;/b&gt; lands today.&lt;/p&gt;</description>
       <pubDate>Mon, 01 Jun 2026 09:00:00 +0000</pubDate>
     </item>
     <item>
@@ -36,6 +37,7 @@ function atomFeed(): string
   <title>Example journal</title>
   <entry>
     <title>On watchtowers</title>
+    <summary>A short note on lookouts.</summary>
     <link rel="alternate" href="https://example.test/watchtowers"/>
     <published>2026-06-03T09:00:00Z</published>
   </entry>
@@ -56,6 +58,7 @@ test('it stores items from an rss feed', function () {
         ->and($item->feed_source_id)->toBe($source->id)
         ->and($item->triage_status)->toBe(TriageStatus::Pending)
         ->and($item->published_at->toDateString())->toBe('2026-06-01')
+        ->and($item->summary)->toBe('The release lands today.')
         ->and($item->fetched_at)->not->toBeNull()
         ->and($source->refresh()->last_fetched_at)->not->toBeNull();
 });
@@ -67,7 +70,8 @@ test('it stores items from an atom feed', function () {
 
     expect(app(FetchFeedSource::class)($source))->toBe(1);
 
-    expect(RadarItem::sole()->url)->toBe('https://example.test/watchtowers');
+    expect(RadarItem::sole()->url)->toBe('https://example.test/watchtowers')
+        ->and(RadarItem::sole()->summary)->toBe('A short note on lookouts.');
 });
 
 test('a re-fetch does not resurface an item that was already triaged', function () {
@@ -130,4 +134,64 @@ test('the command fetches only active sources', function () {
     $this->artisan('specula:fetch-feeds')->assertSuccessful();
 
     expect(RadarItem::count())->toBe(2);
+});
+
+test('it stores feed text as plain text, never as the markup that arrived', function () {
+    Http::fake(['*' => Http::response(<<<'XML'
+<?xml version="1.0"?>
+<rss version="2.0"><channel>
+  <item>
+    <title>Tidy &amp;amp; short</title>
+    <link>https://example.test/xss</link>
+    <description>&lt;script&gt;alert('x')&lt;/script&gt;Real   summary
+    text</description>
+  </item>
+</channel></rss>
+XML)]);
+
+    app(FetchFeedSource::class)(FeedSource::factory()->create());
+
+    $item = RadarItem::sole();
+
+    expect($item->summary)->toBe("alert('x')Real summary text")
+        ->and($item->summary)->not->toContain('<script>')
+        ->and($item->title)->toBe('Tidy & short');
+});
+
+test('it stores no summary when the feed gives none', function () {
+    Http::fake(['*' => Http::response(<<<'XML'
+<?xml version="1.0"?>
+<rss version="2.0"><channel>
+  <item><title>Bare</title><link>https://example.test/bare</link></item>
+</channel></rss>
+XML)]);
+
+    app(FetchFeedSource::class)(FeedSource::factory()->create());
+
+    expect(RadarItem::sole()->summary)->toBeNull();
+});
+
+test('the seed command adds the starter feeds once', function () {
+    $this->artisan('specula:seed-feeds')->assertSuccessful();
+
+    $first = FeedSource::count();
+
+    expect($first)->toBeGreaterThan(0);
+
+    $this->artisan('specula:seed-feeds')->assertSuccessful();
+
+    expect(FeedSource::count())->toBe($first)
+        ->and(FeedSource::pluck('url')->unique())->toHaveCount($first);
+});
+
+test('the seed command leaves a source you already changed alone', function () {
+    $this->artisan('specula:seed-feeds');
+
+    $source = FeedSource::query()->firstOrFail();
+    $source->update(['name' => 'Renamed', 'is_active' => false]);
+
+    $this->artisan('specula:seed-feeds');
+
+    expect($source->refresh()->name)->toBe('Renamed')
+        ->and($source->is_active)->toBeFalse();
 });

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { index, show } from '@/routes/radar';
 import { index as feedsIndex } from '@/routes/radar/feeds';
 import type { SelectOption } from '@/types';
+import PromoteButton from './promote-button';
 import TriageForm from './triage-form';
 import type { RadarItem } from './types';
 
@@ -128,7 +129,13 @@ export default function RadarIndex({
                                     )}
                                 </div>
 
-                                <TriageForm item={item} statuses={statuses} />
+                                <div className="flex flex-col items-start gap-2">
+                                    <TriageForm
+                                        item={item}
+                                        statuses={statuses}
+                                    />
+                                    <PromoteButton item={item} />
+                                </div>
                             </li>
                         ))}
                     </ul>

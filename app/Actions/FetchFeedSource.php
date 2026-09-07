@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Models\FeedSource;
 use App\Models\RadarItem;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use SimpleXMLElement;
 use Throwable;
 
@@ -45,7 +46,7 @@ class FetchFeedSource
     }
 
     /**
-     * @param  list<array{title: string, url: string, published_at: string|null}>  $entries
+     * @param  list<array{title: string, url: string, summary: string|null, published_at: string|null}>  $entries
      */
     private function store(FeedSource $source, array $entries): int
     {
@@ -70,7 +71,7 @@ class FetchFeedSource
     }
 
     /**
-     * @return list<array{title: string, url: string, published_at: string|null}>
+     * @return list<array{title: string, url: string, summary: string|null, published_at: string|null}>
      */
     public function parse(string $body): array
     {
@@ -87,16 +88,23 @@ class FetchFeedSource
 
         foreach ($xml->xpath('//item') ?: [] as $item) {
             $entries[] = [
-                'title' => trim((string) $item->title),
+                'title' => $this->text((string) $item->title, 250) ?? '',
                 'url' => trim((string) $item->link),
+                'summary' => $this->text(
+                    (string) ($item->children('content', true)->encoded ?? '')
+                        ?: (string) $item->description,
+                ),
                 'published_at' => $this->date((string) $item->pubDate),
             ];
         }
 
         foreach ($xml->xpath('//*[local-name()="entry"]') ?: [] as $entry) {
             $entries[] = [
-                'title' => trim((string) $entry->title),
+                'title' => $this->text((string) $entry->title, 250) ?? '',
                 'url' => $this->atomLink($entry),
+                'summary' => $this->text(
+                    (string) ($entry->summary ?? '') ?: (string) ($entry->content ?? ''),
+                ),
                 'published_at' => $this->date(
                     (string) ($entry->published ?? '') ?: (string) ($entry->updated ?? ''),
                 ),
@@ -131,6 +139,20 @@ class FetchFeedSource
         }
 
         return $fallback;
+    }
+
+    /**
+     * Feed text is written by whoever runs the feed, so it is reduced to plain
+     * text here rather than stored as the markup that arrived. Nothing
+     * downstream renders it as HTML, and this keeps it that way even if
+     * something later does.
+     */
+    private function text(string $value, int $limit = 1000): ?string
+    {
+        $plain = strip_tags(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        $plain = trim((string) preg_replace('/\s+/u', ' ', $plain));
+
+        return $plain === '' ? null : Str::limit($plain, $limit);
     }
 
     private function date(string $value): ?string

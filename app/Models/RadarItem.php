@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $feed_source_id
  * @property string $title
  * @property string $url
+ * @property string|null $summary
  * @property CarbonImmutable|null $published_at
  * @property CarbonImmutable $fetched_at
  * @property TriageStatus $triage_status
@@ -26,8 +27,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_hidden
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
+ * @property-read FeedSource|null $feedSource the source is nullable: a feed can be
+ *     removed without taking the items it produced with it
  */
-#[Fillable(['feed_source_id', 'title', 'url', 'published_at', 'triage_status', 'relevance_note'])]
+#[Fillable([
+    'feed_source_id',
+    'title',
+    'url',
+    'summary',
+    'published_at',
+    'triage_status',
+    'relevance_note',
+])]
 class RadarItem extends Model implements Linkable
 {
     /** @use HasFactory<RadarItemFactory> */

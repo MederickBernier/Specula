@@ -2,6 +2,7 @@ export type RadarItem = {
     id: number;
     title: string;
     url: string;
+    summary: string | null;
     published_at: string | null;
     fetched_at: string;
     triage_status: string;
@@ -9,6 +10,8 @@ export type RadarItem = {
     relevance_note: string | null;
     is_hidden: boolean;
     feed_source: { id: number; name: string } | null;
+    /** Whether this item has already produced a vetting item. */
+    promoted?: boolean;
 };
 
 export type FeedSource = {

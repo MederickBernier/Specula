@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\PromoteRadarItem;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\TriageStatus;
@@ -30,6 +31,8 @@ class RadarItemController extends Controller
         return Inertia::render('radar/index', [
             'items' => RadarItem::query()
                 ->with('feedSource:id,name')
+                ->withExists(['outgoingItemLinks as promoted' => fn ($query) => $query
+                    ->where('target_type', 'vetting_item')])
                 ->when($status, fn ($query) => $query->where('triage_status', $status))
                 ->when($status === null, fn ($query) => $query->visible())
                 ->orderByDesc('published_at')
@@ -54,6 +57,30 @@ class RadarItemController extends Controller
             'statuses' => TriageStatus::options(),
             ...$this->itemLinkProps($radarItem),
         ]);
+    }
+
+    /**
+     * Raise a vetting item from this radar item and link the two.
+     */
+    public function promote(RadarItem $radarItem, PromoteRadarItem $promote): RedirectResponse
+    {
+        if ($promote->alreadyPromoted($radarItem)) {
+            Inertia::flash('toast', [
+                'type' => 'info',
+                'message' => __('That item is already in the vetting log.'),
+            ]);
+
+            return back();
+        }
+
+        $vettingItem = $promote($radarItem->load('feedSource'));
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('Raised in the vetting log.'),
+        ]);
+
+        return to_route('vetting.edit', $vettingItem);
     }
 
     /**

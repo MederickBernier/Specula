@@ -5,6 +5,7 @@ import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
 import { index } from '@/routes/radar';
 import type { ItemLinkProps, SelectOption } from '@/types';
+import PromoteButton from './promote-button';
 import TriageForm from './triage-form';
 import type { RadarItem } from './types';
 
@@ -66,9 +67,17 @@ export default function ShowRadarItem({
                     <ExternalLink className="size-4" /> {item.url}
                 </a>
 
+                {item.summary && (
+                    <section className="space-y-2">
+                        <h2 className="text-lg font-medium">Summary</h2>
+                        <p className="text-sm">{item.summary}</p>
+                    </section>
+                )}
+
                 <section className="space-y-3">
                     <h2 className="text-lg font-medium">Triage</h2>
                     <TriageForm item={item} statuses={statuses} />
+                    <PromoteButton item={item} />
                 </section>
 
                 <MarkdownSection
