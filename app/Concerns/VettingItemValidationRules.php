@@ -14,6 +14,7 @@ trait VettingItemValidationRules
     protected function vettingItemRules(): array
     {
         return [
+            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:255'],
             'source_type' => ['required', new Enum(VettingSourceType::class)],
             'source_detail' => ['nullable', 'string', 'max:255'],

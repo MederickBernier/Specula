@@ -7,9 +7,11 @@ import VettingForm from './vetting-form';
 export default function CreateVettingItem({
     statuses,
     sourceTypes,
+    projects,
 }: {
     statuses: SelectOption[];
     sourceTypes: SelectOption[];
+    projects: SelectOption[];
 }) {
     return (
         <>
@@ -24,6 +26,7 @@ export default function CreateVettingItem({
                 <VettingForm
                     statuses={statuses}
                     sourceTypes={sourceTypes}
+                    projects={projects}
                     submitLabel="Create item"
                     submit={(form) => form.submit(store())}
                 />

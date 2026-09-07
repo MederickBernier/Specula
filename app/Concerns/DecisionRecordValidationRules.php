@@ -1,16 +1,20 @@
 <?php
+
 namespace App\Concerns;
 
 use App\Enums\DecisionStatus;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
-trait DecisionRecordValidationRules{
+trait DecisionRecordValidationRules
+{
     /**
      * @return array<string,mixed>
      */
-    protected function decisionRecordRules(?int $ignoreId = null):array{
+    protected function decisionRecordRules(?int $ignoreId = null): array
+    {
         return [
+            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'project_prefix' => ['required', 'string', 'max:16'],
             'category' => ['required', 'string', 'max:32'],
             'sequence' => [

@@ -5,6 +5,8 @@ use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
 use App\Http\Controllers\FeedSourceController;
 use App\Http\Controllers\ItemLinkController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\PrototypeController;
 use App\Http\Controllers\RadarItemController;
 use App\Http\Controllers\SavedSearchController;
@@ -19,6 +21,15 @@ Route::inertia('/', 'welcome')->name('home');
 // here once, including for modules added later.
 Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::resource('projects', ProjectController::class);
+
+    Route::post('projects/{project}/notes', [ProjectNoteController::class, 'store'])
+        ->name('projects.notes.store');
+    Route::put('project-notes/{projectNote}', [ProjectNoteController::class, 'update'])
+        ->name('projects.notes.update');
+    Route::delete('project-notes/{projectNote}', [ProjectNoteController::class, 'destroy'])
+        ->name('projects.notes.destroy');
 
     Route::resource('decisions', DecisionRecordController::class)
         ->parameters(['decisions' => 'decisionRecord']);

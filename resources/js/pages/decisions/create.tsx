@@ -6,8 +6,10 @@ import DecisionForm from './decision-form';
 
 export default function CreateDecision({
     statuses,
+    projects,
 }: {
     statuses: SelectOption[];
+    projects: SelectOption[];
 }) {
     return (
         <>
@@ -21,6 +23,7 @@ export default function CreateDecision({
 
                 <DecisionForm
                     statuses={statuses}
+                    projects={projects}
                     submitLabel="Create record"
                     submit={(form) => form.submit(store())}
                 />

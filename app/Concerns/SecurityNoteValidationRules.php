@@ -18,6 +18,7 @@ trait SecurityNoteValidationRules
     protected function securityNoteRules(): array
     {
         return [
+            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:255'],
             'source' => ['required', new Enum(SecurityNoteSource::class)],
             'category' => ['nullable', 'string', 'max:255'],

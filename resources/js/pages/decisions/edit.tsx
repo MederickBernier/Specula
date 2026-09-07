@@ -8,9 +8,11 @@ import type { DecisionRecord } from './types';
 export default function EditDecision({
     record,
     statuses,
+    projects,
 }: {
     record: DecisionRecord;
     statuses: SelectOption[];
+    projects: SelectOption[];
 }) {
     return (
         <>
@@ -25,6 +27,7 @@ export default function EditDecision({
                 <DecisionForm
                     record={record}
                     statuses={statuses}
+                    projects={projects}
                     submitLabel="Save changes"
                     submit={(form) => form.submit(update(record.id))}
                 />

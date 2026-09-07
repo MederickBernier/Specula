@@ -5,6 +5,7 @@ import {
     FileText,
     FlaskConical,
     FolderGit2,
+    FolderKanban,
     LayoutGrid,
     Radar,
     ShieldAlert,
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as decisionsIndex } from '@/routes/decisions';
+import { index as projectsIndex } from '@/routes/projects';
 import { index as prototypesIndex } from '@/routes/prototypes';
 import { index as radarIndex } from '@/routes/radar';
 import { index as securityNotesIndex } from '@/routes/security-notes';
@@ -35,6 +37,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Projects',
+        href: projectsIndex(),
+        icon: FolderKanban,
     },
     {
         title: 'Decisions',

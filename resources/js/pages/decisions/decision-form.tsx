@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import InputError from '@/components/input-error';
+import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,7 @@ import type { SelectOption } from '@/types';
 import type { DecisionOption, DecisionRecord } from './types';
 
 type DecisionFormData = {
+    project_id: string;
     project_prefix: string;
     category: string;
     sequence: number | string;
@@ -39,6 +41,7 @@ function initialData(
     statuses: SelectOption[],
 ): DecisionFormData {
     return {
+        project_id: record?.project_id ? String(record.project_id) : '',
         project_prefix: record?.project_prefix ?? '',
         category: record?.category ?? '',
         sequence: record?.sequence ?? '',
@@ -62,12 +65,14 @@ function initialData(
 }
 
 export default function DecisionForm({
+    projects,
     record,
     statuses,
     submit,
     submitLabel,
 }: {
     record?: DecisionRecord;
+    projects: SelectOption[];
     statuses: SelectOption[];
     submit: (form: ReturnType<typeof useForm<DecisionFormData>>) => void;
     submitLabel: string;
@@ -96,6 +101,14 @@ export default function DecisionForm({
             }}
             className="space-y-8"
         >
+            <ProjectField
+                projects={projects}
+                value={data.project_id}
+                onChange={(value) => setData('project_id', value)}
+                error={errors.project_id}
+                hint="The prefix below is taken from the project when one is chosen."
+            />
+
             <div className="grid gap-4 md:grid-cols-3">
                 <div className="grid gap-2">
                     <Label htmlFor="project_prefix">Project prefix</Label>

@@ -11,10 +11,12 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
+ * @property int|null $project_id
  * @property string $project_prefix
  * @property string $category
  * @property int $sequence
@@ -29,9 +31,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $conditions_for_revisiting
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
+ * @property-read Project|null $project
  * @property-read string $document_id
  */
 #[Fillable([
+    'project_id',
     'project_prefix',
     'category',
     'sequence',
@@ -63,6 +67,28 @@ class DecisionRecord extends Model implements Linkable
         return [
             'status' => DecisionStatus::class,
         ];
+    }
+
+    /**
+     * A decision that belongs to a project takes its prefix from the project,
+     * so the document id cannot drift from the project it was filed under.
+     * Decisions with no project keep whatever prefix was typed.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $record): void {
+            if ($record->project_id === null) {
+                return;
+            }
+
+            $project = $record->relationLoaded('project')
+                ? $record->project
+                : Project::find($record->project_id);
+
+            if ($project instanceof Project) {
+                $record->project_prefix = $project->prefix;
+            }
+        });
     }
 
     /**
@@ -122,5 +148,13 @@ class DecisionRecord extends Model implements Linkable
     public static function moduleLabel(): string
     {
         return 'Decision record';
+    }
+
+    /**
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

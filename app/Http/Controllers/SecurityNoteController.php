@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\SecurityNoteSource;
@@ -17,6 +18,7 @@ use Inertia\Response;
 
 class SecurityNoteController extends Controller
 {
+    use OffersProjects;
     use PresentsItemLinks;
     use RendersMarkdown;
 
@@ -116,6 +118,7 @@ class SecurityNoteController extends Controller
     private function formOptions(): array
     {
         return [
+            'projects' => $this->projectOptions(),
             'sources' => SecurityNoteSource::options(),
             'severities' => SecuritySeverity::options(),
             'routes' => SecurityRoutedTo::options(),

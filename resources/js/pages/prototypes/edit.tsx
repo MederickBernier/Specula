@@ -9,10 +9,12 @@ export default function EditPrototype({
     prototype,
     statuses,
     confidenceLevels,
+    projects,
 }: {
     prototype: Prototype;
     statuses: SelectOption[];
     confidenceLevels: SelectOption[];
+    projects: SelectOption[];
 }) {
     return (
         <>
@@ -25,6 +27,7 @@ export default function EditPrototype({
                     prototype={prototype}
                     statuses={statuses}
                     confidenceLevels={confidenceLevels}
+                    projects={projects}
                     submitLabel="Save changes"
                     submit={(form) => form.submit(update(prototype.id))}
                 />

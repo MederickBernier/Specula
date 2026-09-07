@@ -11,9 +11,11 @@ use Database\Factories\PrototypeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
+ * @property int|null $project_id
  * @property string $title
  * @property PrototypeStatus $status
  * @property string $hypothesis
@@ -26,10 +28,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $repo_reference
  * @property CarbonImmutable $date_started
  * @property CarbonImmutable|null $date_completed
+ * @property-read Project|null $project
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
 #[Fillable([
+    'project_id',
     'title',
     'status',
     'hypothesis',
@@ -94,5 +98,13 @@ class Prototype extends Model implements Linkable
     public static function moduleLabel(): string
     {
         return 'Prototype';
+    }
+
+    /**
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

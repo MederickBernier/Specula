@@ -11,9 +11,11 @@ use Database\Factories\VettingItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
+ * @property int|null $project_id
  * @property string $title
  * @property VettingSourceType $source_type
  * @property string|null $source_detail
@@ -24,10 +26,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $rejection_reason
  * @property CarbonImmutable|null $date_resolved
  * @property string|null $external_url
+ * @property-read Project|null $project
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
 #[Fillable([
+    'project_id',
     'title',
     'source_type',
     'source_detail',
@@ -89,5 +93,13 @@ class VettingItem extends Model implements Linkable
     public static function moduleLabel(): string
     {
         return 'Vetting item';
+    }
+
+    /**
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

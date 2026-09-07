@@ -8,6 +8,7 @@ export type VettingItemSummary = {
 };
 
 export type VettingItem = VettingItemSummary & {
+    project_id: number | null;
     source_detail: string | null;
     proposal_description: string;
     assessment: string | null;

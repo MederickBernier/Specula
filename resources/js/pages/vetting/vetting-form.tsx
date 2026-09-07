@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import type { SelectOption } from '@/types';
 import type { VettingItem } from './types';
 
 type VettingFormData = {
+    project_id: string;
     title: string;
     source_type: string;
     source_detail: string;
@@ -28,6 +30,7 @@ function initialData(
     sourceTypes: SelectOption[],
 ): VettingFormData {
     return {
+        project_id: item?.project_id ? String(item.project_id) : '',
         title: item?.title ?? '',
         source_type: item?.source_type ?? sourceTypes[0]?.value ?? '',
         source_detail: item?.source_detail ?? '',
@@ -43,6 +46,7 @@ function initialData(
 }
 
 export default function VettingForm({
+    projects,
     item,
     statuses,
     sourceTypes,
@@ -50,6 +54,7 @@ export default function VettingForm({
     submitLabel,
 }: {
     item?: VettingItem;
+    projects: SelectOption[];
     statuses: SelectOption[];
     sourceTypes: SelectOption[];
     submit: (form: ReturnType<typeof useForm<VettingFormData>>) => void;
@@ -68,6 +73,13 @@ export default function VettingForm({
             }}
             className="space-y-8"
         >
+            <ProjectField
+                projects={projects}
+                value={data.project_id}
+                onChange={(value) => setData('project_id', value)}
+                error={errors.project_id}
+            />
+
             <div className="grid gap-2">
                 <Label htmlFor="title">Title</Label>
                 <Input

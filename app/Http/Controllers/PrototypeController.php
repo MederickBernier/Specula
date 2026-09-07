@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\ConfidenceLevel;
@@ -15,6 +16,7 @@ use Inertia\Response;
 
 class PrototypeController extends Controller
 {
+    use OffersProjects;
     use PresentsItemLinks;
     use RendersMarkdown;
 
@@ -116,6 +118,7 @@ class PrototypeController extends Controller
     private function formOptions(): array
     {
         return [
+            'projects' => $this->projectOptions(),
             'statuses' => PrototypeStatus::options(),
             'confidenceLevels' => ConfidenceLevel::options(),
         ];

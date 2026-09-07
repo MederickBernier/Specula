@@ -16,6 +16,7 @@ trait PrototypeValidationRules
         $completed = 'status,'.PrototypeStatus::Completed->value;
 
         return [
+            'project_id' => ['nullable', 'integer', 'exists:projects,id'],
             'title' => ['required', 'string', 'max:255'],
             'status' => ['required', new Enum(PrototypeStatus::class)],
             'hypothesis' => ['required', 'string'],

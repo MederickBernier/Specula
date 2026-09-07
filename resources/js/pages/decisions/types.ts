@@ -19,6 +19,7 @@ export type DecisionRecordSummary = {
 };
 
 export type DecisionRecord = DecisionRecordSummary & {
+    project_id: number | null;
     status: string;
     author: string;
     deciders: string | null;

@@ -9,10 +9,12 @@ export default function EditVettingItem({
     item,
     statuses,
     sourceTypes,
+    projects,
 }: {
     item: VettingItem;
     statuses: SelectOption[];
     sourceTypes: SelectOption[];
+    projects: SelectOption[];
 }) {
     return (
         <>
@@ -25,6 +27,7 @@ export default function EditVettingItem({
                     item={item}
                     statuses={statuses}
                     sourceTypes={sourceTypes}
+                    projects={projects}
                     submitLabel="Save changes"
                     submit={(form) => form.submit(update(item.id))}
                 />

@@ -13,9 +13,11 @@ use Database\Factories\SecurityNoteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
+ * @property int|null $project_id
  * @property string $title
  * @property SecurityNoteSource $source
  * @property string|null $category
@@ -29,10 +31,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property CarbonImmutable $date_flagged
  * @property CarbonImmutable|null $date_resolved
  * @property string|null $external_url
+ * @property-read Project|null $project
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  */
 #[Fillable([
+    'project_id',
     'title',
     'source',
     'category',
@@ -100,5 +104,13 @@ class SecurityNote extends Model implements Linkable
     public static function moduleLabel(): string
     {
         return 'Security note';
+    }
+
+    /**
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

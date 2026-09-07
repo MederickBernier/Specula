@@ -7,9 +7,11 @@ import PrototypeForm from './prototype-form';
 export default function CreatePrototype({
     statuses,
     confidenceLevels,
+    projects,
 }: {
     statuses: SelectOption[];
     confidenceLevels: SelectOption[];
+    projects: SelectOption[];
 }) {
     return (
         <>
@@ -24,6 +26,7 @@ export default function CreatePrototype({
                 <PrototypeForm
                     statuses={statuses}
                     confidenceLevels={confidenceLevels}
+                    projects={projects}
                     submitLabel="Create prototype"
                     submit={(form) => form.submit(store())}
                 />

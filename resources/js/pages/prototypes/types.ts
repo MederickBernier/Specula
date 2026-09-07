@@ -9,6 +9,7 @@ export type PrototypeSummary = {
 };
 
 export type Prototype = PrototypeSummary & {
+    project_id: number | null;
     hypothesis: string;
     test_approach: string | null;
     result: string | null;

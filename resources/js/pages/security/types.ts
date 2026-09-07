@@ -12,6 +12,7 @@ export type SecurityNoteSummary = {
 };
 
 export type SecurityNote = SecurityNoteSummary & {
+    project_id: number | null;
     finding: string;
     non_issue_reason: string | null;
     deferral_reason: string | null;

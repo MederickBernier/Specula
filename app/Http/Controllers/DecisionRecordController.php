@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\DecisionRelationshipType;
@@ -16,6 +17,7 @@ use Inertia\Response;
 
 class DecisionRecordController extends Controller
 {
+    use OffersProjects;
     use PresentsItemLinks;
     use RendersMarkdown;
 
@@ -40,6 +42,7 @@ class DecisionRecordController extends Controller
     {
         return Inertia::render('decisions/create', [
             'statuses' => DecisionStatus::options(),
+            'projects' => $this->projectOptions(),
         ]);
     }
 
@@ -94,6 +97,7 @@ class DecisionRecordController extends Controller
         return Inertia::render('decisions/edit', [
             'record' => $decisionRecord->load('options'),
             'statuses' => DecisionStatus::options(),
+            'projects' => $this->projectOptions(),
         ]);
     }
 

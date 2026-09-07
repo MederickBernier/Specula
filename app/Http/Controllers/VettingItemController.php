@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
 use App\Enums\VettingSourceType;
@@ -15,6 +16,7 @@ use Inertia\Response;
 
 class VettingItemController extends Controller
 {
+    use OffersProjects;
     use PresentsItemLinks;
     use RendersMarkdown;
 
@@ -112,6 +114,7 @@ class VettingItemController extends Controller
     private function formOptions(): array
     {
         return [
+            'projects' => $this->projectOptions(),
             'statuses' => VettingStatus::options(),
             'sourceTypes' => VettingSourceType::options(),
         ];

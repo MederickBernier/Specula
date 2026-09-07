@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import type { SelectOption } from '@/types';
 import type { Prototype } from './types';
 
 type PrototypeFormData = {
+    project_id: string;
     title: string;
     status: string;
     hypothesis: string;
@@ -31,6 +33,7 @@ function initialData(
     statuses: SelectOption[],
 ): PrototypeFormData {
     return {
+        project_id: prototype?.project_id ? String(prototype.project_id) : '',
         title: prototype?.title ?? '',
         status: prototype?.status ?? statuses[0]?.value ?? '',
         hypothesis: prototype?.hypothesis ?? '',
@@ -48,6 +51,7 @@ function initialData(
 }
 
 export default function PrototypeForm({
+    projects,
     prototype,
     statuses,
     confidenceLevels,
@@ -55,6 +59,7 @@ export default function PrototypeForm({
     submitLabel,
 }: {
     prototype?: Prototype;
+    projects: SelectOption[];
     statuses: SelectOption[];
     confidenceLevels: SelectOption[];
     submit: (form: ReturnType<typeof useForm<PrototypeFormData>>) => void;
@@ -74,6 +79,13 @@ export default function PrototypeForm({
             }}
             className="space-y-8"
         >
+            <ProjectField
+                projects={projects}
+                value={data.project_id}
+                onChange={(value) => setData('project_id', value)}
+                error={errors.project_id}
+            />
+
             <div className="grid gap-2">
                 <Label htmlFor="title">Title</Label>
                 <Input

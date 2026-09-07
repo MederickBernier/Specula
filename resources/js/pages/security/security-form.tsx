@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import type { SelectOption } from '@/types';
 import type { SecurityNote } from './types';
 
 type SecurityFormData = {
+    project_id: string;
     title: string;
     source: string;
     category: string;
@@ -27,6 +29,7 @@ type SecurityFormData = {
 const DEFERRED = 'deferred';
 
 export type SecurityFormOptions = {
+    projects: SelectOption[];
     sources: SelectOption[];
     severities: SelectOption[];
     routes: SelectOption[];
@@ -38,6 +41,7 @@ function initialData(
     { sources, severities, routes, statuses }: SecurityFormOptions,
 ): SecurityFormData {
     return {
+        project_id: note?.project_id ? String(note.project_id) : '',
         title: note?.title ?? '',
         source: note?.source ?? sources[0]?.value ?? '',
         category: note?.category ?? '',
@@ -77,6 +81,13 @@ export default function SecurityForm({
             }}
             className="space-y-8"
         >
+            <ProjectField
+                projects={options.projects}
+                value={data.project_id}
+                onChange={(value) => setData('project_id', value)}
+                error={errors.project_id}
+            />
+
             <div className="grid gap-2">
                 <Label htmlFor="title">Title</Label>
                 <Input

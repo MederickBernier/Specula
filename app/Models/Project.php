@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Models;
+
+use Carbon\CarbonImmutable;
+use Database\Factories\ProjectFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/**
+ * A body of work that the other modules hang off: its decisions, the proposals
+ * vetted for it, the spikes run for it, the findings raised against it, and the
+ * loose notes that are none of those.
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $prefix
+ * @property string|null $description
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ */
+#[Fillable(['name', 'prefix', 'description'])]
+class Project extends Model
+{
+    /** @use HasFactory<ProjectFactory> */
+    use HasFactory;
+
+    /**
+     * @return HasMany<DecisionRecord, $this>
+     */
+    public function decisionRecords(): HasMany
+    {
+        return $this->hasMany(DecisionRecord::class);
+    }
+
+    /**
+     * @return HasMany<VettingItem, $this>
+     */
+    public function vettingItems(): HasMany
+    {
+        return $this->hasMany(VettingItem::class);
+    }
+
+    /**
+     * @return HasMany<Prototype, $this>
+     */
+    public function prototypes(): HasMany
+    {
+        return $this->hasMany(Prototype::class);
+    }
+
+    /**
+     * @return HasMany<SecurityNote, $this>
+     */
+    public function securityNotes(): HasMany
+    {
+        return $this->hasMany(SecurityNote::class);
+    }
+
+    /**
+     * @return HasMany<ProjectNote, $this>
+     */
+    public function notes(): HasMany
+    {
+        return $this->hasMany(ProjectNote::class);
+    }
+}
