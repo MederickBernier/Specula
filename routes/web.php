@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
 use App\Http\Controllers\FeedSourceController;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('decisions', DecisionRecordController::class)
         ->parameters(['decisions' => 'decisionRecord']);
