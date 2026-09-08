@@ -29,6 +29,7 @@ import type {
 } from './types';
 
 type ShowProps = TechnologyStackProps & {
+    markdown: string;
     project: Project;
     html: { description: string | null };
     decisions: ProjectDecision[];
@@ -90,6 +91,7 @@ function Row({
 export default function ShowProject({
     project,
     html,
+    markdown,
     decisions,
     vettingItems,
     prototypes,
@@ -123,6 +125,7 @@ export default function ShowProject({
 
                         <MarkdownExport
                             downloadUrl={exportMethod(project.id).url}
+                            markdown={markdown}
                         />
 
                         {canWrite && (

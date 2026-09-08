@@ -1,9 +1,11 @@
 import { Form, Head, Link, router } from '@inertiajs/react';
 import { Archive, ArchiveRestore, Plus } from 'lucide-react';
 import Heading from '@/components/heading';
+import MarkdownExport from '@/components/markdown-export';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
+import { everything } from '@/routes/export';
 import { archive, create, index, show } from '@/routes/projects';
 import type { ProjectSummary } from './types';
 
@@ -29,7 +31,12 @@ export default function ProjectsIndex({
                         description="Everything filed under one body of work"
                     />
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <MarkdownExport
+                            downloadUrl={everything().url}
+                            label="Everything"
+                        />
+
                         {(archivedCount > 0 || showingArchived) && (
                             <Button
                                 variant="outline"

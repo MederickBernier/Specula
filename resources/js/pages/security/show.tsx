@@ -3,17 +3,19 @@ import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
+import MarkdownExport from '@/components/markdown-export';
 import TechnologyStack from '@/components/technology-stack';
 import type { TechnologyStackProps } from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
-import { destroy, edit, index } from '@/routes/security-notes';
+import { destroy, edit, exportMethod, index } from '@/routes/security-notes';
 import type { ItemLinkProps } from '@/types';
 import type { SecurityNote } from './types';
 
 type ShowProps = ItemLinkProps &
     TechnologyStackProps & {
+        markdown: string;
         note: SecurityNote;
         html: {
             finding: string | null;
@@ -28,6 +30,7 @@ export default function ShowSecurityNote({
     stack,
     technologyOptions,
     stackTarget,
+    markdown,
     ...links
 }: ShowProps) {
     const { canWrite } = usePermissions();
@@ -45,21 +48,28 @@ export default function ShowSecurityNote({
                         )}
                     </div>
 
-                    {canWrite && (
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
-                                <Link href={edit(note.id)}>
-                                    <Pencil /> Edit
-                                </Link>
-                            </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <MarkdownExport
+                            downloadUrl={exportMethod(note.id).url}
+                            markdown={markdown}
+                        />
 
-                            <Form {...destroy.form(note.id)}>
-                                <Button type="submit" variant="destructive">
-                                    <Trash2 /> Delete
+                        {canWrite && (
+                            <>
+                                <Button asChild variant="outline">
+                                    <Link href={edit(note.id)}>
+                                        <Pencil /> Edit
+                                    </Link>
                                 </Button>
-                            </Form>
-                        </div>
-                    )}
+
+                                <Form {...destroy.form(note.id)}>
+                                    <Button type="submit" variant="destructive">
+                                        <Trash2 /> Delete
+                                    </Button>
+                                </Form>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-3 lg:grid-cols-6">

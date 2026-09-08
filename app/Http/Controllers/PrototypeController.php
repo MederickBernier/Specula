@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RenderPrototypeMarkdown;
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\PresentsTechnologyStack;
@@ -72,6 +73,7 @@ class PrototypeController extends Controller
     {
         return Inertia::render('prototypes/show', [
             'prototype' => $prototype,
+            'markdown' => app(RenderPrototypeMarkdown::class)($prototype),
             ...$this->technologyStackProps($prototype),
             ...$this->itemLinkProps($prototype),
             'html' => [

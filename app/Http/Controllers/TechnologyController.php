@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\BuildTechnologyBreakdown;
+use App\Actions\RenderTechnologyMarkdown;
 use App\Concerns\RendersMarkdown;
 use App\Enums\TechnologyCategory;
 use App\Enums\TechnologyRing;
@@ -77,6 +78,7 @@ class TechnologyController extends Controller
 
         return Inertia::render('technologies/show', [
             'technology' => $technology,
+            'markdown' => app(RenderTechnologyMarkdown::class)($technology),
             'html' => ['notes' => $this->renderMarkdown($technology->notes)],
             'usages' => $usages
                 ->groupBy('usable_type')

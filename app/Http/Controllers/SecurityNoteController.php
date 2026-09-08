@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RenderSecurityNoteMarkdown;
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\PresentsTechnologyStack;
@@ -74,6 +75,7 @@ class SecurityNoteController extends Controller
     {
         return Inertia::render('security/show', [
             'note' => $securityNote,
+            'markdown' => app(RenderSecurityNoteMarkdown::class)($securityNote),
             ...$this->technologyStackProps($securityNote),
             ...$this->itemLinkProps($securityNote),
             'html' => [

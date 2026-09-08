@@ -1,4 +1,4 @@
-import { Check, Copy, Download } from 'lucide-react';
+import { Check, Copy, Download, FileText } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useClipboard } from '@/hooks/use-clipboard';
@@ -13,9 +13,12 @@ import { useClipboard } from '@/hooks/use-clipboard';
 export default function MarkdownExport({
     downloadUrl,
     markdown,
+    label = 'Download',
 }: {
+    /** The markdown route. The PDF is the same URL asking for a format. */
     downloadUrl: string;
     markdown?: string;
+    label?: string;
 }) {
     const [, copy] = useClipboard();
     const [copied, setCopied] = useState(false);
@@ -39,7 +42,13 @@ export default function MarkdownExport({
 
             <Button variant="outline" asChild>
                 <a href={downloadUrl} download>
-                    <Download /> Download
+                    <Download /> {label} .md
+                </a>
+            </Button>
+
+            <Button variant="outline" asChild>
+                <a href={`${downloadUrl}?format=pdf`} download>
+                    <FileText /> {label} .pdf
                 </a>
             </Button>
         </div>

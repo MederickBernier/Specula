@@ -2,11 +2,12 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import { MarkdownSection } from '@/components/markdown';
+import MarkdownExport from '@/components/markdown-export';
 import { RingBadge, StatusBadge } from '@/components/technology-badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
-import { destroy, edit, index } from '@/routes/technologies';
+import { destroy, edit, exportMethod, index } from '@/routes/technologies';
 import type { Technology, UsageGroup } from './types';
 
 export default function ShowTechnology({
@@ -14,10 +15,12 @@ export default function ShowTechnology({
     html,
     usages,
     versions,
+    markdown,
 }: {
     technology: Technology;
     html: { notes: string | null };
     usages: UsageGroup[];
+    markdown: string;
     versions: string[];
 }) {
     const { canWrite } = usePermissions();
@@ -50,21 +53,28 @@ export default function ShowTechnology({
                         </div>
                     </div>
 
-                    {canWrite && (
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
-                                <Link href={edit(technology.id)}>
-                                    <Pencil /> Edit
-                                </Link>
-                            </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <MarkdownExport
+                            downloadUrl={exportMethod(technology.id).url}
+                            markdown={markdown}
+                        />
 
-                            <Form {...destroy.form(technology.id)}>
-                                <Button type="submit" variant="destructive">
-                                    <Trash2 /> Delete
+                        {canWrite && (
+                            <>
+                                <Button asChild variant="outline">
+                                    <Link href={edit(technology.id)}>
+                                        <Pencil /> Edit
+                                    </Link>
                                 </Button>
-                            </Form>
-                        </div>
-                    )}
+
+                                <Form {...destroy.form(technology.id)}>
+                                    <Button type="submit" variant="destructive">
+                                        <Trash2 /> Delete
+                                    </Button>
+                                </Form>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 {technology.homepage_url && (

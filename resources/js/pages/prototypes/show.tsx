@@ -3,17 +3,19 @@ import { GitBranch, Pencil, Trash2 } from 'lucide-react';
 import Heading from '@/components/heading';
 import ItemLinks from '@/components/item-links';
 import { MarkdownSection } from '@/components/markdown';
+import MarkdownExport from '@/components/markdown-export';
 import TechnologyStack from '@/components/technology-stack';
 import type { TechnologyStackProps } from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
-import { destroy, edit, index } from '@/routes/prototypes';
+import { destroy, edit, exportMethod, index } from '@/routes/prototypes';
 import type { ItemLinkProps } from '@/types';
 import type { Prototype } from './types';
 
 type ShowProps = ItemLinkProps &
     TechnologyStackProps & {
+        markdown: string;
         prototype: Prototype;
         html: {
             hypothesis: string | null;
@@ -30,6 +32,7 @@ export default function ShowPrototype({
     stack,
     technologyOptions,
     stackTarget,
+    markdown,
     ...links
 }: ShowProps) {
     const { canWrite } = usePermissions();
@@ -42,21 +45,28 @@ export default function ShowPrototype({
                 <div className="flex items-start justify-between gap-4">
                     <Heading title={prototype.title} />
 
-                    {canWrite && (
-                        <div className="flex items-center gap-2">
-                            <Button asChild variant="outline">
-                                <Link href={edit(prototype.id)}>
-                                    <Pencil /> Edit
-                                </Link>
-                            </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <MarkdownExport
+                            downloadUrl={exportMethod(prototype.id).url}
+                            markdown={markdown}
+                        />
 
-                            <Form {...destroy.form(prototype.id)}>
-                                <Button type="submit" variant="destructive">
-                                    <Trash2 /> Delete
+                        {canWrite && (
+                            <>
+                                <Button asChild variant="outline">
+                                    <Link href={edit(prototype.id)}>
+                                        <Pencil /> Edit
+                                    </Link>
                                 </Button>
-                            </Form>
-                        </div>
-                    )}
+
+                                <Form {...destroy.form(prototype.id)}>
+                                    <Button type="submit" variant="destructive">
+                                        <Trash2 /> Delete
+                                    </Button>
+                                </Form>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <dl className="grid gap-3 text-sm sm:grid-cols-4">

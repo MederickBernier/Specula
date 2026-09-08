@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FeedSourceController;
 use App\Http\Controllers\ItemLinkController;
 use App\Http\Controllers\MarkdownPreviewController;
@@ -29,6 +30,16 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 
     Route::get('search', SearchController::class)->name('search');
 
+    Route::get('export', [ExportController::class, 'everything'])->name('export.everything');
+    Route::get('vetting/{vettingItem}/export', [ExportController::class, 'vettingItem'])
+        ->name('vetting.export');
+    Route::get('prototypes/{prototype}/export', [ExportController::class, 'prototype'])
+        ->name('prototypes.export');
+    Route::get('security-notes/{securityNote}/export', [ExportController::class, 'securityNote'])
+        ->name('security-notes.export');
+    Route::get('technologies/{technology}/export', [ExportController::class, 'technology'])
+        ->name('technologies.export');
+
     // The recap sits above the resource so its path is not read as an id.
     Route::get('technologies/breakdown', [TechnologyController::class, 'breakdown'])
         ->name('technologies.breakdown');
@@ -47,7 +58,7 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::get('projects/{project}/timeline', [ProjectController::class, 'timeline'])
         ->name('projects.timeline');
 
-    Route::get('projects/{project}/export', [ProjectController::class, 'export'])
+    Route::get('projects/{project}/export', [ExportController::class, 'project'])
         ->name('projects.export');
 
     Route::patch('projects/{project}/archive', [ProjectController::class, 'archive'])
@@ -66,7 +77,7 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
     Route::post('decisions/{decisionRecord}/supersede', [DecisionRecordController::class, 'supersede'])
         ->name('decisions.supersede');
 
-    Route::get('decisions/{decisionRecord}/export', [DecisionRecordController::class, 'export'])
+    Route::get('decisions/{decisionRecord}/export', [ExportController::class, 'decision'])
         ->name('decisions.export');
 
     Route::post('decisions/{decisionRecord}/links', [DecisionLinkController::class, 'store'])

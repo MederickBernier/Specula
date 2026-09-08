@@ -2,8 +2,12 @@
 
 namespace App\Actions;
 
+use App\Concerns\WritesMarkdownDocuments;
+use App\Contracts\ExportsToMarkdown;
 use App\Models\Project;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 /**
  * Renders a whole project as one markdown document: what it is, the decisions
@@ -13,12 +17,22 @@ use Illuminate\Support\Str;
  * spike is working material; the decisions are the thing worth handing to
  * someone else.
  */
-class RenderProjectMarkdown
+class RenderProjectMarkdown implements ExportsToMarkdown
 {
+    use WritesMarkdownDocuments;
+
     public function __construct(private RenderDecisionRecordMarkdown $decision) {}
 
-    public function __invoke(Project $project): string
+    public function __invoke(Model $record, int $headingLevel = 1): string
     {
+        if (! $record instanceof Project) {
+            throw new InvalidArgumentException('Expected a project.');
+        }
+
+        $project = $record;
+        $h = $this->heading($headingLevel);
+        $section = $this->heading($headingLevel + 1);
+
         $project->loadMissing([
             'decisionRecords.options',
             'decisionRecords.outgoingLinks.target',
@@ -26,7 +40,7 @@ class RenderProjectMarkdown
             'notes',
         ]);
 
-        $lines = ['# '.$project->prefix.' — '.$project->name];
+        $lines = [$h.' '.$project->prefix.' — '.$project->name];
 
         if ($project->isArchived()) {
             $lines[] = '';
@@ -38,22 +52,22 @@ class RenderProjectMarkdown
             $lines[] = trim($project->description);
         }
 
-        $this->decisions($lines, $project);
-        $this->openWork($lines, $project);
-        $this->notes($lines, $project);
+        $this->decisions($lines, $project, $section, $headingLevel);
+        $this->openWork($lines, $project, $section);
+        $this->notes($lines, $project, $section, $headingLevel);
 
         return implode("\n", $lines)."\n";
     }
 
-    public function filename(Project $project): string
+    public function basename(Model $record): string
     {
-        return Str::slug($project->prefix).'.md';
+        return Str::slug((string) $record->getAttribute('prefix'));
     }
 
     /**
      * @param  list<string>  $lines
      */
-    private function decisions(array &$lines, Project $project): void
+    private function decisions(array &$lines, Project $project, string $section, int $headingLevel): void
     {
         $decisions = $project->decisionRecords
             ->sortBy(['category', 'sequence'])
@@ -64,11 +78,11 @@ class RenderProjectMarkdown
         }
 
         $lines[] = '';
-        $lines[] = '## Decision records';
+        $lines[] = $section.' Decision records';
 
         foreach ($decisions as $record) {
             $lines[] = '';
-            $lines[] = rtrim(($this->decision)($record, 3));
+            $lines[] = rtrim(($this->decision)($record, $headingLevel + 2));
         }
     }
 
@@ -78,7 +92,7 @@ class RenderProjectMarkdown
      *
      * @param  list<string>  $lines
      */
-    private function openWork(array &$lines, Project $project): void
+    private function openWork(array &$lines, Project $project, string $section): void
     {
         $rows = [];
 
@@ -99,7 +113,7 @@ class RenderProjectMarkdown
         }
 
         $lines[] = '';
-        $lines[] = '## Still open';
+        $lines[] = $section.' Still open';
         $lines[] = '';
         $lines[] = '| Kind | Item | State |';
         $lines[] = '|---|---|---|';
@@ -112,18 +126,18 @@ class RenderProjectMarkdown
     /**
      * @param  list<string>  $lines
      */
-    private function notes(array &$lines, Project $project): void
+    private function notes(array &$lines, Project $project, string $section, int $headingLevel): void
     {
         if ($project->notes->isEmpty()) {
             return;
         }
 
         $lines[] = '';
-        $lines[] = '## Notes';
+        $lines[] = $section.' Notes';
 
         foreach ($project->notes->sortByDesc('updated_at') as $note) {
             $lines[] = '';
-            $lines[] = '### '.$note->title;
+            $lines[] = $this->heading($headingLevel + 2).' '.$note->title;
             $lines[] = '';
             $lines[] = trim($note->body);
         }

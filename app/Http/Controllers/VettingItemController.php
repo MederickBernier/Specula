@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RenderVettingItemMarkdown;
 use App\Concerns\OffersProjects;
 use App\Concerns\PresentsItemLinks;
 use App\Concerns\RendersMarkdown;
@@ -68,6 +69,7 @@ class VettingItemController extends Controller
     {
         return Inertia::render('vetting/show', [
             'item' => $vettingItem,
+            'markdown' => app(RenderVettingItemMarkdown::class)($vettingItem),
             ...$this->itemLinkProps($vettingItem),
             'html' => [
                 'proposal_description' => $this->renderMarkdown($vettingItem->proposal_description),

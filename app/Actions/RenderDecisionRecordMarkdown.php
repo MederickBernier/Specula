@@ -2,7 +2,11 @@
 
 namespace App\Actions;
 
+use App\Concerns\WritesMarkdownDocuments;
+use App\Contracts\ExportsToMarkdown;
 use App\Models\DecisionRecord;
+use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 
 /**
  * Renders a decision record back to the markdown document it was written as.
@@ -11,79 +15,69 @@ use App\Models\DecisionRecord;
  * or an email. Keeping the fields as rows is what makes them queryable; this
  * puts them back together on the way out.
  */
-class RenderDecisionRecordMarkdown
+class RenderDecisionRecordMarkdown implements ExportsToMarkdown
 {
-    public function __invoke(DecisionRecord $record, int $headingLevel = 1): string
+    use WritesMarkdownDocuments;
+
+    public function __invoke(Model $record, int $headingLevel = 1): string
     {
+        if (! $record instanceof DecisionRecord) {
+            throw new InvalidArgumentException('Expected a decision record.');
+        }
+
         $record->loadMissing(['options', 'outgoingLinks.target', 'incomingLinks.source']);
 
-        $h = str_repeat('#', $headingLevel);
+        $h = $this->heading($headingLevel);
+        $section = $this->heading($headingLevel + 1);
+        $option = $this->heading($headingLevel + 2);
 
         $lines = [
             $h.' '.$record->document_id.' — '.$record->title,
-            '',
-            '| | |',
-            '|---|---|',
-            '| Status | '.$record->status->label().' |',
-            '| Author | '.$this->cell($record->author).' |',
-            '| Deciders | '.$this->cell($record->deciders).' |',
-            '| Affects | '.$this->cell($record->affects).' |',
-            '| Created | '.$record->created_at?->toDateString().' |',
-            '| Updated | '.$record->updated_at?->toDateString().' |',
         ];
 
-        $this->section($lines, $h.'# Context', $record->proposal_context);
-        $this->section($lines, $h.'# Decision', $record->recommendation);
-        $this->options($lines, $record, $h);
-        $this->section($lines, $h.'# Consequences', $record->consequences);
-        $this->section($lines, $h.'# Conditions for revisiting', $record->conditions_for_revisiting);
-        $this->links($lines, $record, $h);
+        $this->metadata($lines, [
+            ['Status', $record->status->label()],
+            ['Author', $record->author],
+            ['Deciders', $record->deciders],
+            ['Affects', $record->affects],
+            ['Created', $record->created_at?->toDateString()],
+            ['Updated', $record->updated_at?->toDateString()],
+        ]);
+
+        $this->section($lines, $section.' Context', $record->proposal_context);
+        $this->section($lines, $section.' Decision', $record->recommendation);
+        $this->options($lines, $record, $section, $option);
+        $this->section($lines, $section.' Consequences', $record->consequences);
+        $this->section($lines, $section.' Conditions for revisiting', $record->conditions_for_revisiting);
+        $this->links($lines, $record, $section);
 
         return implode("\n", $lines)."\n";
     }
 
-    /**
-     * The filename this document should be saved as.
-     */
-    public function filename(DecisionRecord $record): string
+    public function basename(Model $record): string
     {
-        return $record->document_id.'.md';
+        return (string) $record->getAttribute('document_id');
     }
 
     /**
      * @param  list<string>  $lines
      */
-    private function section(array &$lines, string $heading, ?string $body): void
-    {
-        if ($body === null || trim($body) === '') {
-            return;
-        }
-
-        $lines[] = '';
-        $lines[] = $heading;
-        $lines[] = '';
-        $lines[] = trim($body);
-    }
-
-    /**
-     * @param  list<string>  $lines
-     */
-    private function options(array &$lines, DecisionRecord $record, string $h): void
+    private function options(array &$lines, DecisionRecord $record, string $section, string $option): void
     {
         if ($record->options->isEmpty()) {
             return;
         }
 
         $lines[] = '';
-        $lines[] = $h.'# Options considered';
+        $lines[] = $section.' Options considered';
 
-        foreach ($record->options as $option) {
+        foreach ($record->options as $candidate) {
             $lines[] = '';
-            $lines[] = $h.'## '.$option->name.($option->was_chosen ? ' *(chosen)*' : '');
+            $lines[] = $option.' '.$candidate->name.($candidate->was_chosen ? ' *(chosen)*' : '');
 
-            $this->optionPart($lines, $option->description);
-            $this->optionPart($lines, $option->pros, '**Pros:** ');
-            $this->optionPart($lines, $option->cons, '**Cons:** ');
+            $this->optionPart($lines, $candidate->description);
+            $this->optionPart($lines, $candidate->pros, '**Pros:** ');
+            $this->optionPart($lines, $candidate->cons, '**Cons:** ');
         }
     }
 
@@ -106,7 +100,7 @@ class RenderDecisionRecordMarkdown
      *
      * @param  list<string>  $lines
      */
-    private function links(array &$lines, DecisionRecord $record, string $h): void
+    private function links(array &$lines, DecisionRecord $record, string $section): void
     {
         $rows = [];
 
@@ -123,7 +117,7 @@ class RenderDecisionRecordMarkdown
         }
 
         $lines[] = '';
-        $lines[] = $h.'# Related decisions';
+        $lines[] = $section.' Related decisions';
         $lines[] = '';
         $lines[] = '| | Relationship | Record | Scope | Role |';
         $lines[] = '|---|---|---|---|---|';
@@ -138,15 +132,5 @@ class RenderDecisionRecordMarkdown
                 $this->cell($link->role_note),
             );
         }
-    }
-
-    /**
-     * Keeps a pipe in free text from breaking the table it sits in.
-     */
-    private function cell(?string $value): string
-    {
-        $value = trim((string) $value);
-
-        return $value === '' ? '—' : str_replace('|', '\\|', $value);
     }
 }

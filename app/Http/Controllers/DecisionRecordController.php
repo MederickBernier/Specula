@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class DecisionRecordController extends Controller
 {
@@ -123,17 +122,6 @@ class DecisionRecordController extends Controller
         ]);
 
         return to_route('decisions.edit', $successor);
-    }
-
-    /**
-     * Download the record as the markdown document it was written as.
-     */
-    public function export(DecisionRecord $decisionRecord, RenderDecisionRecordMarkdown $render): HttpResponse
-    {
-        return response($render($decisionRecord), 200, [
-            'Content-Type' => 'text/markdown; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$render->filename($decisionRecord).'"',
-        ]);
     }
 
     /**
