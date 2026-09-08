@@ -1,12 +1,12 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import type { SelectOption } from '@/types';
 import type { Prototype } from './types';
 
@@ -145,44 +145,27 @@ export default function PrototypeForm({
                     ['test_approach', 'Test approach', false],
                 ] as const
             ).map(([field, label, required]) => (
-                <div key={field} className="grid gap-2">
-                    <Label htmlFor={field}>
-                        {label}{' '}
-                        <span className="text-muted-foreground">
-                            (markdown)
-                        </span>
-                    </Label>
-                    <Textarea
-                        id={field}
-                        value={data[field]}
-                        onChange={(event) => setData(field, event.target.value)}
-                        required={required}
-                        rows={8}
-                    />
-                    <InputError message={errors[field]} />
-                </div>
+                <MarkdownField
+                    key={field}
+                    id={field}
+                    label={label}
+                    value={data[field]}
+                    onChange={(next) => setData(field, next)}
+                    error={errors[field]}
+                    required={required}
+                />
             ))}
 
             {isCompleted && (
                 <>
-                    <div className="grid gap-2">
-                        <Label htmlFor="result">
-                            Result{' '}
-                            <span className="text-muted-foreground">
-                                (markdown)
-                            </span>
-                        </Label>
-                        <Textarea
-                            id="result"
-                            value={data.result}
-                            onChange={(event) =>
-                                setData('result', event.target.value)
-                            }
-                            rows={8}
-                            required
-                        />
-                        <InputError message={errors.result} />
-                    </div>
+                    <MarkdownField
+                        id="result"
+                        label="Result"
+                        value={data.result}
+                        onChange={(next) => setData('result', next)}
+                        error={errors.result}
+                        required
+                    />
 
                     <div className="grid gap-2">
                         <Label htmlFor="confidence_level">
@@ -214,50 +197,31 @@ export default function PrototypeForm({
                         </div>
 
                         {data.is_reusable && (
-                            <div className="grid gap-2">
-                                <Label htmlFor="reusability_note">
-                                    What can be reused{' '}
-                                    <span className="text-muted-foreground">
-                                        (markdown)
-                                    </span>
-                                </Label>
-                                <Textarea
-                                    id="reusability_note"
-                                    value={data.reusability_note}
-                                    onChange={(event) =>
-                                        setData(
-                                            'reusability_note',
-                                            event.target.value,
-                                        )
-                                    }
-                                    rows={4}
-                                />
-                                <InputError message={errors.reusability_note} />
-                            </div>
+                            <MarkdownField
+                                id="reusability_note"
+                                label="What can be reused"
+                                value={data.reusability_note}
+                                onChange={(next) =>
+                                    setData('reusability_note', next)
+                                }
+                                error={errors.reusability_note}
+                                rows={4}
+                            />
                         )}
                     </div>
                 </>
             )}
 
             {isAbandoned && (
-                <div className="grid gap-2">
-                    <Label htmlFor="abandoned_reason">
-                        Why it was abandoned{' '}
-                        <span className="text-muted-foreground">
-                            (markdown)
-                        </span>
-                    </Label>
-                    <Textarea
-                        id="abandoned_reason"
-                        value={data.abandoned_reason}
-                        onChange={(event) =>
-                            setData('abandoned_reason', event.target.value)
-                        }
-                        rows={5}
-                        required
-                    />
-                    <InputError message={errors.abandoned_reason} />
-                </div>
+                <MarkdownField
+                    id="abandoned_reason"
+                    label="Why it was abandoned"
+                    value={data.abandoned_reason}
+                    onChange={(next) => setData('abandoned_reason', next)}
+                    error={errors.abandoned_reason}
+                    rows={5}
+                    required
+                />
             )}
 
             <Button type="submit" disabled={processing}>

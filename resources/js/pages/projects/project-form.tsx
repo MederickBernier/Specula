@@ -1,9 +1,9 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import type { Project } from './types';
 
 type ProjectFormData = {
@@ -69,21 +69,14 @@ export default function ProjectForm({
                 </div>
             </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="description">
-                    Description{' '}
-                    <span className="text-muted-foreground">(markdown)</span>
-                </Label>
-                <Textarea
-                    id="description"
-                    value={data.description}
-                    onChange={(event) =>
-                        setData('description', event.target.value)
-                    }
-                    rows={6}
-                />
-                <InputError message={errors.description} />
-            </div>
+            <MarkdownField
+                id="description"
+                label="Description"
+                value={data.description}
+                onChange={(next) => setData('description', next)}
+                error={errors.description}
+                rows={6}
+            />
 
             <Button type="submit" disabled={processing}>
                 {submitLabel}

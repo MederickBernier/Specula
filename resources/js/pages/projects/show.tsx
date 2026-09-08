@@ -5,7 +5,7 @@ import Heading from '@/components/heading';
 import { MarkdownSection } from '@/components/markdown';
 import MarkdownExport from '@/components/markdown-export';
 import TechnologyStack from '@/components/technology-stack';
-import type {TechnologyStackProps} from '@/components/technology-stack';
+import type { TechnologyStackProps } from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';

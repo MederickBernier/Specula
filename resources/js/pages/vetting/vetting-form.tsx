@@ -1,11 +1,11 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import type { SelectOption } from '@/types';
 import type { VettingItem } from './types';
 
@@ -166,43 +166,27 @@ export default function VettingForm({
                     ['assessment', 'Assessment', false],
                 ] as const
             ).map(([field, label, required]) => (
-                <div key={field} className="grid gap-2">
-                    <Label htmlFor={field}>
-                        {label}{' '}
-                        <span className="text-muted-foreground">
-                            (markdown)
-                        </span>
-                    </Label>
-                    <Textarea
-                        id={field}
-                        value={data[field]}
-                        onChange={(event) => setData(field, event.target.value)}
-                        required={required}
-                        rows={8}
-                    />
-                    <InputError message={errors[field]} />
-                </div>
+                <MarkdownField
+                    key={field}
+                    id={field}
+                    label={label}
+                    value={data[field]}
+                    onChange={(next) => setData(field, next)}
+                    error={errors[field]}
+                    required={required}
+                />
             ))}
 
             {data.status === REJECTED && (
-                <div className="grid gap-2">
-                    <Label htmlFor="rejection_reason">
-                        Rejection reason{' '}
-                        <span className="text-muted-foreground">
-                            (markdown)
-                        </span>
-                    </Label>
-                    <Textarea
-                        id="rejection_reason"
-                        value={data.rejection_reason}
-                        onChange={(event) =>
-                            setData('rejection_reason', event.target.value)
-                        }
-                        rows={5}
-                        required
-                    />
-                    <InputError message={errors.rejection_reason} />
-                </div>
+                <MarkdownField
+                    id="rejection_reason"
+                    label="Rejection reason"
+                    value={data.rejection_reason}
+                    onChange={(next) => setData('rejection_reason', next)}
+                    error={errors.rejection_reason}
+                    rows={5}
+                    required
+                />
             )}
 
             <Button type="submit" disabled={processing}>

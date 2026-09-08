@@ -3,10 +3,10 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Markdown } from '@/components/markdown';
+import MarkdownField from '@/components/markdown-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, store, update } from '@/routes/projects/notes';
 import type { ProjectNote } from './types';
@@ -55,20 +55,15 @@ function NoteForm({
                 <InputError message={errors.title} />
             </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor={`note-body-${note?.id ?? 'new'}`}>
-                    Note{' '}
-                    <span className="text-muted-foreground">(markdown)</span>
-                </Label>
-                <Textarea
-                    id={`note-body-${note?.id ?? 'new'}`}
-                    value={data.body}
-                    onChange={(event) => setData('body', event.target.value)}
-                    rows={5}
-                    required
-                />
-                <InputError message={errors.body} />
-            </div>
+            <MarkdownField
+                id={`note-body-${note?.id ?? 'new'}`}
+                label="Note"
+                value={data.body}
+                onChange={(next) => setData('body', next)}
+                error={errors.body}
+                rows={5}
+                required
+            />
 
             <div className="flex items-center gap-2">
                 <Button type="submit" size="sm" disabled={processing}>

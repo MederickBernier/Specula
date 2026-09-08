@@ -5,14 +5,14 @@ import InputError from '@/components/input-error';
 import ItemLinks from '@/components/item-links';
 import { Markdown, MarkdownSection } from '@/components/markdown';
 import MarkdownExport from '@/components/markdown-export';
+import MarkdownField from '@/components/markdown-field';
 import TechnologyStack from '@/components/technology-stack';
-import type {TechnologyStackProps} from '@/components/technology-stack';
+import type { TechnologyStackProps } from '@/components/technology-stack';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import { usePermissions } from '@/hooks/use-permissions';
 import { destroy, edit, exportMethod, index } from '@/routes/decisions';
 import links from '@/routes/decisions/links';
@@ -365,22 +365,13 @@ export default function ShowDecision({
                                         </div>
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="impact_summary">
-                                            Impact summary{' '}
-                                            <span className="text-muted-foreground">
-                                                (markdown)
-                                            </span>
-                                        </Label>
-                                        <Textarea
-                                            id="impact_summary"
-                                            name="impact_summary"
-                                            rows={4}
-                                        />
-                                        <InputError
-                                            message={errors.impact_summary}
-                                        />
-                                    </div>
+                                    <MarkdownField
+                                        id="impact_summary"
+                                        name="impact_summary"
+                                        label="Impact summary"
+                                        error={errors.impact_summary}
+                                        rows={4}
+                                    />
 
                                     <Button type="submit" disabled={processing}>
                                         Add link

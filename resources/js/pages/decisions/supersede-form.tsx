@@ -2,10 +2,10 @@ import { useForm } from '@inertiajs/react';
 import { Replace } from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { supersede } from '@/routes/decisions';
 import type { DecisionRecord } from './types';
 
@@ -76,21 +76,14 @@ export default function SupersedeForm({ record }: { record: DecisionRecord }) {
                 <InputError message={errors.scope_note} />
             </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="supersede_impact">
-                    Why it matters{' '}
-                    <span className="text-muted-foreground">(markdown)</span>
-                </Label>
-                <Textarea
-                    id="supersede_impact"
-                    value={data.impact_summary}
-                    onChange={(event) =>
-                        setData('impact_summary', event.target.value)
-                    }
-                    rows={3}
-                />
-                <InputError message={errors.impact_summary} />
-            </div>
+            <MarkdownField
+                id="supersede_impact"
+                label="Why it matters"
+                value={data.impact_summary}
+                onChange={(next) => setData('impact_summary', next)}
+                error={errors.impact_summary}
+                rows={3}
+            />
 
             <div className="flex items-center gap-2">
                 <Button type="submit" disabled={processing}>

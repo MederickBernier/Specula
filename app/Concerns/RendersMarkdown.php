@@ -1,18 +1,19 @@
 <?php
+
 namespace App\Concerns;
 
-use Illuminate\Support\Str;
+use App\Actions\RenderMarkdownToHtml;
 
-trait RendersMarkdown{
+trait RendersMarkdown
+{
     /**
-     * Convert stored markdown into HTML that is safe to render as raw HTML
+     * Convert stored markdown into HTML that is safe to render as raw HTML.
+     *
+     * Delegates rather than converting here: the options live in one place so
+     * the preview, the page and the PDF cannot drift apart.
      */
-    protected function renderMarkdown(?string $markdown):?string{
-        if($markdown === null || trim($markdown) === '') return null;
-
-        return Str::markdown($markdown,[
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
+    protected function renderMarkdown(?string $markdown): ?string
+    {
+        return app(RenderMarkdownToHtml::class)($markdown);
     }
 }

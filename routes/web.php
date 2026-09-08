@@ -5,6 +5,7 @@ use App\Http\Controllers\DecisionLinkController;
 use App\Http\Controllers\DecisionRecordController;
 use App\Http\Controllers\FeedSourceController;
 use App\Http\Controllers\ItemLinkController;
+use App\Http\Controllers\MarkdownPreviewController;
 use App\Http\Controllers\MetricsController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectNoteController;
@@ -109,6 +110,14 @@ Route::middleware(['auth', 'verified', 'can-write'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+// Rendering what is being typed. Writes nothing, so it sits outside the write
+// guard for the same reason the saved searches do.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('markdown/preview', MarkdownPreviewController::class)
+        ->middleware('throttle:120,1')
+        ->name('markdown.preview');
+});
 
 // Saved radar filters. Outside the can-write group: a saved search is a private
 // view of data the account can already read, so a read-only account keeps its

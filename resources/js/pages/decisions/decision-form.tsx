@@ -1,13 +1,13 @@
 import { useForm } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import type { SelectOption } from '@/types';
 import type { DecisionOption, DecisionRecord } from './types';
 
@@ -232,22 +232,15 @@ export default function DecisionForm({
                     ],
                 ] as const
             ).map(([field, label, required]) => (
-                <div key={field} className="grid gap-2">
-                    <Label htmlFor={field}>
-                        {label}{' '}
-                        <span className="text-muted-foreground">
-                            (markdown)
-                        </span>
-                    </Label>
-                    <Textarea
-                        id={field}
-                        value={data[field]}
-                        onChange={(event) => setData(field, event.target.value)}
-                        required={required}
-                        rows={8}
-                    />
-                    <InputError message={errors[field]} />
-                </div>
+                <MarkdownField
+                    key={field}
+                    id={field}
+                    label={label}
+                    value={data[field]}
+                    onChange={(next) => setData(field, next)}
+                    error={errors[field]}
+                    required={required}
+                />
             ))}
 
             <div className="grid gap-2">
@@ -349,23 +342,16 @@ export default function DecisionForm({
                                 ['cons', 'Cons'],
                             ] as const
                         ).map(([field, label]) => (
-                            <div key={field} className="grid gap-2">
-                                <Label htmlFor={`option-${index}-${field}`}>
-                                    {label}
-                                </Label>
-                                <Textarea
-                                    id={`option-${index}-${field}`}
-                                    value={option[field] ?? ''}
-                                    onChange={(event) =>
-                                        updateOption(
-                                            index,
-                                            field,
-                                            event.target.value,
-                                        )
-                                    }
-                                    rows={4}
-                                />
-                            </div>
+                            <MarkdownField
+                                key={field}
+                                id={`option-${index}-${field}`}
+                                label={label}
+                                value={option[field] ?? ''}
+                                onChange={(next) =>
+                                    updateOption(index, field, next)
+                                }
+                                rows={4}
+                            />
                         ))}
 
                         <div className="flex items-center gap-2">

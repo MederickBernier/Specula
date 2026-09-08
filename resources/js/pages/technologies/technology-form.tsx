@@ -1,10 +1,10 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import type { SelectOption } from '@/types';
 import type { Technology } from './types';
 
@@ -141,20 +141,15 @@ export default function TechnologyForm({
                 </div>
             </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="notes">
-                    Notes{' '}
-                    <span className="text-muted-foreground">(markdown)</span>
-                </Label>
-                <Textarea
-                    id="notes"
-                    value={data.notes}
-                    onChange={(event) => setData('notes', event.target.value)}
-                    rows={6}
-                    placeholder="Why it is here, what it costs, what it would take to leave it"
-                />
-                <InputError message={errors.notes} />
-            </div>
+            <MarkdownField
+                id="notes"
+                label="Notes"
+                value={data.notes}
+                onChange={(next) => setData('notes', next)}
+                error={errors.notes}
+                rows={6}
+                placeholder="Why it is here, what it costs, what it would take to leave it"
+            />
 
             <Button type="submit" disabled={processing}>
                 {submitLabel}

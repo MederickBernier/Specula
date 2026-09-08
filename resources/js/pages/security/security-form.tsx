@@ -1,12 +1,12 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import ProjectField from '@/components/project-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import type { SelectOption } from '@/types';
 import type { SecurityNote } from './types';
 
@@ -196,20 +196,14 @@ export default function SecurityForm({
                 <InputError message={errors.external_url} />
             </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="finding">
-                    Finding{' '}
-                    <span className="text-muted-foreground">(markdown)</span>
-                </Label>
-                <Textarea
-                    id="finding"
-                    value={data.finding}
-                    onChange={(event) => setData('finding', event.target.value)}
-                    rows={8}
-                    required
-                />
-                <InputError message={errors.finding} />
-            </div>
+            <MarkdownField
+                id="finding"
+                label="Finding"
+                value={data.finding}
+                onChange={(next) => setData('finding', next)}
+                error={errors.finding}
+                required
+            />
 
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -224,63 +218,50 @@ export default function SecurityForm({
                 </div>
 
                 {!data.is_issue && (
-                    <div className="grid gap-2">
-                        <Label htmlFor="non_issue_reason">
-                            Why it is not an issue{' '}
-                            <span className="text-muted-foreground">
-                                (markdown)
-                            </span>
-                        </Label>
-                        <Textarea
-                            id="non_issue_reason"
-                            value={data.non_issue_reason}
-                            onChange={(event) =>
-                                setData('non_issue_reason', event.target.value)
-                            }
-                            rows={5}
-                            required
-                        />
-                        <InputError message={errors.non_issue_reason} />
-                    </div>
+                    <MarkdownField
+                        id="non_issue_reason"
+                        label="Why it is not an issue"
+                        value={data.non_issue_reason}
+                        onChange={(next) => setData('non_issue_reason', next)}
+                        error={errors.non_issue_reason}
+                        rows={5}
+                        required
+                    />
                 )}
             </div>
 
             {data.status === DEFERRED && (
-                <div className="grid gap-2">
-                    <Label htmlFor="deferral_reason">
-                        Why it was deferred{' '}
-                        <span className="text-muted-foreground">
-                            (markdown)
-                        </span>
-                    </Label>
-                    <Textarea
+                <div className="space-y-4">
+                    <MarkdownField
                         id="deferral_reason"
+                        label="Why it was deferred"
                         value={data.deferral_reason}
-                        onChange={(event) =>
-                            setData('deferral_reason', event.target.value)
-                        }
+                        onChange={(next) => setData('deferral_reason', next)}
+                        error={errors.deferral_reason}
                         rows={5}
                         required
                     />
-                    <InputError message={errors.deferral_reason} />
 
-                    <Label htmlFor="deferred_until">
-                        Look at this again on
-                    </Label>
-                    <Input
-                        id="deferred_until"
-                        type="date"
-                        className="w-56"
-                        value={data.deferred_until}
-                        onChange={(event) =>
-                            setData('deferred_until', event.target.value)
-                        }
-                        required
-                    />
-                    <p className="text-sm text-muted-foreground">
-                        A deferral with no date is how a finding gets forgotten.
-                    </p>
-                    <InputError message={errors.deferred_until} />
+                    <div className="grid gap-2">
+                        <Label htmlFor="deferred_until">
+                            Look at this again on
+                        </Label>
+                        <Input
+                            id="deferred_until"
+                            type="date"
+                            className="w-56"
+                            value={data.deferred_until}
+                            onChange={(event) =>
+                                setData('deferred_until', event.target.value)
+                            }
+                            required
+                        />
+                        <p className="text-sm text-muted-foreground">
+                            A deferral with no date is how a finding gets
+                            forgotten.
+                        </p>
+                        <InputError message={errors.deferred_until} />
+                    </div>
                 </div>
             )}
 

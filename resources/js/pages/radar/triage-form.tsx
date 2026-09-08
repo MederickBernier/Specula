@@ -1,8 +1,8 @@
 import { useForm } from '@inertiajs/react';
 import InputError from '@/components/input-error';
+import MarkdownField from '@/components/markdown-field';
 import { Button } from '@/components/ui/button';
 import { NativeSelect } from '@/components/ui/native-select';
-import { Textarea } from '@/components/ui/textarea';
 import { usePermissions } from '@/hooks/use-permissions';
 import { triage } from '@/routes/radar';
 import type { SelectOption } from '@/types';
@@ -64,19 +64,16 @@ export default function TriageForm({
             </div>
 
             {data.triage_status === RELEVANT && (
-                <div className="grid gap-2">
-                    <Textarea
-                        aria-label="Why this is relevant"
-                        value={data.relevance_note}
-                        onChange={(event) =>
-                            setData('relevance_note', event.target.value)
-                        }
-                        placeholder="Why this one is worth keeping (markdown)"
-                        rows={3}
-                        required
-                    />
-                    <InputError message={errors.relevance_note} />
-                </div>
+                <MarkdownField
+                    id={`relevance-note-${item.id}`}
+                    label="Why this is relevant"
+                    value={data.relevance_note}
+                    onChange={(next) => setData('relevance_note', next)}
+                    error={errors.relevance_note}
+                    placeholder="Why this one is worth keeping"
+                    rows={3}
+                    required
+                />
             )}
 
             <InputError message={errors.triage_status} />
