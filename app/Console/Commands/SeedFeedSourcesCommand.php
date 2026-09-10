@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
  * on day one. Safe to run again: sources are matched on their URL, and one you
  * have edited or paused is left alone.
  */
-#[Signature('specula:seed-feeds {--fetch : Fetch each source once after adding it}')]
+#[Signature('clearsight:seed-feeds {--fetch : Fetch each source once after adding it}')]
 #[Description('Add a starter set of tech and security feeds')]
 class SeedFeedSourcesCommand extends Command
 {
@@ -52,7 +52,7 @@ class SeedFeedSourcesCommand extends Command
         $this->info("{$added} feed source(s) added.");
 
         if ($this->option('fetch') && $added > 0) {
-            $this->call('specula:fetch-feeds');
+            $this->call('clearsight:fetch-feeds');
         }
 
         return self::SUCCESS;

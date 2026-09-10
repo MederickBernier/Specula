@@ -1,7 +1,7 @@
-# Production image for Specula. Local development uses Sail's compose.yaml
+# Production image for ClearSight. Local development uses Sail's compose.yaml
 # instead; this is the artifact that ships to the droplet.
 #
-# Build:  docker build -t specula:latest .
+# Build:  docker build -t clearsight:latest .
 # Run:    see compose.prod.yaml
 
 # --- Composer dependencies -------------------------------------------------
@@ -52,7 +52,7 @@ RUN apk add --no-cache postgresql-client libpq icu-libs libzip \
     && docker-php-ext-install pdo_pgsql pgsql intl zip \
     && apk del .build-deps
 
-COPY deploy/php.ini /usr/local/etc/php/conf.d/specula.ini
+COPY deploy/php.ini /usr/local/etc/php/conf.d/clearsight.ini
 
 WORKDIR /srv
 
@@ -64,14 +64,14 @@ COPY . .
 # the image. The entrypoint syncs it on every boot, otherwise a redeploy would
 # leave the volume holding the previous release's assets.
 RUN cp -R /srv/public /opt/app-public \
-    && addgroup -g 1000 specula \
-    && adduser -u 1000 -G specula -s /bin/sh -D specula \
-    && chown -R specula:specula /srv
+    && addgroup -g 1000 clearsight \
+    && adduser -u 1000 -G clearsight -s /bin/sh -D clearsight \
+    && chown -R clearsight:clearsight /srv
 
 COPY deploy/entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
 
-USER specula
+USER clearsight
 
 ENTRYPOINT ["entrypoint"]
 CMD ["php-fpm"]

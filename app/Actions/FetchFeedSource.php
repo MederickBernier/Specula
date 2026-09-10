@@ -25,7 +25,7 @@ class FetchFeedSource
     {
         try {
             $body = Http::timeout(15)
-                ->withUserAgent('Specula feed reader')
+                ->withUserAgent('ClearSight feed reader')
                 ->get($source->url)
                 ->throw()
                 ->body();

@@ -12,12 +12,12 @@ use Illuminate\Validation\Rules\Password;
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\text;
 
-#[Signature('specula:create-user
+#[Signature('clearsight:create-user
             {--name= : The user\'s full name}
             {--email= : The user\'s email address}
             {--admin : Grant account-creation rights}
             {--read-only : Create an account that can read everything but change nothing}')]
-#[Description('Create a Specula user account')]
+#[Description('Create a ClearSight user account')]
 class CreateUserCommand extends Command
 {
     public function handle(): int

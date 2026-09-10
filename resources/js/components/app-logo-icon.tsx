@@ -2,9 +2,9 @@ import { Telescope } from 'lucide-react';
 import type { ComponentProps } from 'react';
 
 /**
- * The mark. Specula is Latin for a watchtower or lookout, and the spec notes
- * the double meaning with "speculate", so a glass pointed at the horizon says
- * both halves of it.
+ * The mark. A glass is what makes a distant thing clear, which is the whole
+ * claim in the name, so it points at the horizon rather than sitting on a
+ * desk.
  *
  * Call sites pass fill-current for the old path-based mark; this one is drawn
  * with strokes, so it takes its colour from currentColor either way.

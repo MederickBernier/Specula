@@ -118,10 +118,10 @@ test('the archive gathers projects, unfiled work and the inventory', function ()
     $response = $this->get(route('export.everything'));
 
     $response->assertOk()
-        ->assertHeader('content-disposition', 'attachment; filename="specula-'.now()->toDateString().'.md"');
+        ->assertHeader('content-disposition', 'attachment; filename="clearsight-'.now()->toDateString().'.md"');
 
     expect($response->getContent())
-        ->toContain('# Specula')
+        ->toContain('# ClearSight')
         // projects sit at level two, so the deepest heading inside one still
         // lands within the six markdown has
         ->toContain('## VNG — Vision')
@@ -137,7 +137,7 @@ test('the archive gathers projects, unfiled work and the inventory', function ()
 
 test('an archive of an empty instance is still a document', function () {
     expect($this->get(route('export.everything'))->getContent())
-        ->toContain('# Specula')
+        ->toContain('# ClearSight')
         ->not->toContain('## Filed under no project')
         ->not->toContain('## Technology inventory');
 });

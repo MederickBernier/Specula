@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Specula';
+const appName = import.meta.env.VITE_APP_NAME || 'ClearSight';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

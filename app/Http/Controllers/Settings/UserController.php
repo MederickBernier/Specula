@@ -14,7 +14,7 @@ use Inertia\Response;
  * Account management for administrators.
  *
  * Administrator accounts are deliberately not editable here: they are created
- * with `specula:create-user --admin` and changed the same way. Keeping them out
+ * with `clearsight:create-user --admin` and changed the same way. Keeping them out
  * of the UI removes every path by which the last administrator could lock
  * themselves out of their own instance.
  */

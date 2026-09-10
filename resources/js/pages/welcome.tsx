@@ -107,8 +107,9 @@ export default function Welcome() {
                     </ul>
 
                     <p className="text-center text-xs text-muted-foreground">
-                        Specula is Latin for a watchtower, and the root of
-                        speculate. Accounts are created by an administrator.
+                        Every decision, prototype and finding keeps the
+                        reasoning behind it, not just the outcome. Accounts are
+                        created by an administrator.
                     </p>
                 </main>
             </div>

@@ -4,7 +4,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 test('it creates a non-admin user by default', function () {
-    $this->artisan('specula:create-user', [
+    $this->artisan('clearsight:create-user', [
         '--name' => 'Mederick',
         '--email' => 'mederick@example.com',
     ])
@@ -21,7 +21,7 @@ test('it creates a non-admin user by default', function () {
 });
 
 test('it grants admin rights with the admin flag', function () {
-    $this->artisan('specula:create-user', [
+    $this->artisan('clearsight:create-user', [
         '--name' => 'Admin',
         '--email' => 'admin@example.com',
         '--admin' => true,
@@ -33,7 +33,7 @@ test('it grants admin rights with the admin flag', function () {
 });
 
 test('it prompts for name and email when not passed as options', function () {
-    $this->artisan('specula:create-user')
+    $this->artisan('clearsight:create-user')
         ->expectsQuestion('Name', 'Prompted')
         ->expectsQuestion('Email', 'prompted@example.com')
         ->expectsQuestion('Password', 'password123')
@@ -45,7 +45,7 @@ test('it prompts for name and email when not passed as options', function () {
 test('it rejects a duplicate email without creating a user', function () {
     User::factory()->create(['email' => 'taken@example.com']);
 
-    $this->artisan('specula:create-user', [
+    $this->artisan('clearsight:create-user', [
         '--name' => 'Duplicate',
         '--email' => 'taken@example.com',
     ])
@@ -56,7 +56,7 @@ test('it rejects a duplicate email without creating a user', function () {
 });
 
 test('it rejects a password that fails the default rules', function () {
-    $this->artisan('specula:create-user', [
+    $this->artisan('clearsight:create-user', [
         '--name' => 'Weak',
         '--email' => 'weak@example.com',
     ])

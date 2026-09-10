@@ -8,7 +8,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('specula:fetch-feeds {--source= : Fetch only the feed source with this id}')]
+#[Signature('clearsight:fetch-feeds {--source= : Fetch only the feed source with this id}')]
 #[Description('Fetch every active feed source and store anything new')]
 class FetchFeedsCommand extends Command
 {

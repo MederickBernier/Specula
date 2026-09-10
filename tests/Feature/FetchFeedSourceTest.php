@@ -131,7 +131,7 @@ test('the command fetches only active sources', function () {
     FeedSource::factory()->create();
     FeedSource::factory()->inactive()->create();
 
-    $this->artisan('specula:fetch-feeds')->assertSuccessful();
+    $this->artisan('clearsight:fetch-feeds')->assertSuccessful();
 
     expect(RadarItem::count())->toBe(2);
 });
@@ -172,25 +172,25 @@ XML)]);
 });
 
 test('the seed command adds the starter feeds once', function () {
-    $this->artisan('specula:seed-feeds')->assertSuccessful();
+    $this->artisan('clearsight:seed-feeds')->assertSuccessful();
 
     $first = FeedSource::count();
 
     expect($first)->toBeGreaterThan(0);
 
-    $this->artisan('specula:seed-feeds')->assertSuccessful();
+    $this->artisan('clearsight:seed-feeds')->assertSuccessful();
 
     expect(FeedSource::count())->toBe($first)
         ->and(FeedSource::pluck('url')->unique())->toHaveCount($first);
 });
 
 test('the seed command leaves a source you already changed alone', function () {
-    $this->artisan('specula:seed-feeds');
+    $this->artisan('clearsight:seed-feeds');
 
     $source = FeedSource::query()->firstOrFail();
     $source->update(['name' => 'Renamed', 'is_active' => false]);
 
-    $this->artisan('specula:seed-feeds');
+    $this->artisan('clearsight:seed-feeds');
 
     expect($source->refresh()->name)->toBe('Renamed')
         ->and($source->is_active)->toBeFalse();

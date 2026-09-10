@@ -73,8 +73,8 @@ services:
         restart: unless-stopped
         # No published ports: reachable only from the other containers.
         environment:
-            POSTGRES_DB: ${DB_DATABASE:-specula}
-            POSTGRES_USER: ${DB_USERNAME:-specula}
+            POSTGRES_DB: ${DB_DATABASE:-clearsight}
+            POSTGRES_USER: ${DB_USERNAME:-clearsight}
             POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
         volumes:
             # Postgres 18 wants a single mount at /var/lib/postgresql and puts
@@ -82,7 +82,7 @@ services:
             # /var/lib/postgresql/data instead makes the image refuse to start.
             - pgsql_data:/var/lib/postgresql
         healthcheck:
-            test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE:-specula}', '-U', '${DB_USERNAME:-specula}']
+            test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE:-clearsight}', '-U', '${DB_USERNAME:-clearsight}']
             interval: 10s
             timeout: 5s
             retries: 5

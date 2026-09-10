@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "mederick/specula",
+    "name": "mederick/clearsight",
     "type": "project",
     "description": "A personal instrumentation tool for the Tech Lead role.",
     "keywords": [

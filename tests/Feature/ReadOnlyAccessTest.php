@@ -125,7 +125,7 @@ test('the frontend is told whether the account may write', function () {
 });
 
 test('the console command can create a read-only account', function () {
-    $this->artisan('specula:create-user --name="Reader" --email=reader@example.com --read-only', [
+    $this->artisan('clearsight:create-user --name="Reader" --email=reader@example.com --read-only', [
     ])->expectsQuestion('Password', 'Str0ng-Password!')->assertSuccessful();
 
     $user = User::where('email', 'reader@example.com')->sole();

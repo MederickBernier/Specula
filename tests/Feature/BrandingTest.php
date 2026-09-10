@@ -3,8 +3,8 @@
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
-test('the application is named Specula', function () {
-    expect(config('app.name'))->toBe('Specula');
+test('the application is named ClearSight', function () {
+    expect(config('app.name'))->toBe('ClearSight');
 });
 
 test('the name reaches the frontend on every page', function () {
@@ -12,13 +12,13 @@ test('the name reaches the frontend on every page', function () {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('welcome')
-            ->where('name', 'Specula'));
+            ->where('name', 'ClearSight'));
 
     $this->actingAs(User::factory()->create());
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page->where('name', 'Specula'));
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('name', 'ClearSight'));
 });
 
 test('the landing page points a signed-out visitor at the way in', function () {

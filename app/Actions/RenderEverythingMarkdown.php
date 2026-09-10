@@ -35,7 +35,7 @@ class RenderEverythingMarkdown
     public function __invoke(): string
     {
         $lines = [
-            '# Specula',
+            '# ClearSight',
             '',
             '*Everything recorded, as of '.CarbonImmutable::now()->toDateString().'.*',
         ];
@@ -49,7 +49,7 @@ class RenderEverythingMarkdown
 
     public function basename(): string
     {
-        return 'specula-'.CarbonImmutable::now()->toDateString();
+        return 'clearsight-'.CarbonImmutable::now()->toDateString();
     }
 
     /**

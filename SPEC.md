@@ -1,6 +1,6 @@
-# Specula — Project Spec (v3: Laravel Pivot)
+# ClearSight — Project Spec (v3: Laravel Pivot)
 
-*(working title: "TechLead Central"; name chosen: Specula, Latin for watchtower/lookout — also the root of "speculate," a fitting double meaning for the prototype module)*
+*(working titles, in order: "TechLead Central", then "Specula" — Latin for watchtower/lookout, and the root of "speculate". Renamed to **ClearSight** in September 2026 when the Specula domains turned out to be priced as premium.)*
 
 **Changelog from v2:** v2 targeted ASP.NET Core + Blazor/SPA on .NET 10, blocked in practice by Visual Studio 2026 tooling friction. This version supersedes the stack choice only — the web-app-over-desktop pivot, the module scope, the full data model, and the deployment target (DO droplet, self-hosted Postgres in Docker) all carry forward unchanged. What changes is language/framework: **Laravel (PHP)** in place of ASP.NET Core, chosen on the strength of deep existing familiarity (ruled out as a factor in v1's original C# vs. PHP comparison, but back in play now that the .NET tooling itself became the actual blocker) and **Laravel Sail** for a fast, low-friction local Docker setup.
 
@@ -37,7 +37,7 @@ Unchanged — Decision Records, Feasibility/Vetting Log, Prototype/Spike Tracker
 
 **Frontend: React via Inertia**
 
-- Resolved (was left open pending markdown-editor prototyping). Decided in favor of Inertia+React over Livewire for a reason beyond this project alone: next-gen work is expected to use React, so building Specula against it doubles as deliberate hands-on practice on a stack you'll need regardless — the Tech Radar/currency-tracking instinct this whole app is built around, applied to your own React skills.
+- Resolved (was left open pending markdown-editor prototyping). Decided in favor of Inertia+React over Livewire for a reason beyond this project alone: next-gen work is expected to use React, so building ClearSight against it doubles as deliberate hands-on practice on a stack you'll need regardless — the Tech Radar/currency-tracking instinct this whole app is built around, applied to your own React skills.
 - Worth being explicit about the tradeoff this locks in: Livewire would likely get a working app built faster (no separate JS toolchain, no new component mental model to re-establish) — that speed is being traded for the practice value, not because Inertia+React is a better technical fit for this specific app's needs. A reasonable trade given the stated goal, just not a free one.
 - Practical upside this also buys: better markdown-editor ecosystem out of the box (CodeMirror-based editors, `react-markdown`) than Livewire's JS-interop-dependent options — so the decision isn't purely a skills trade, it also resolves the markdown-tooling question in the stronger direction.
 - Laravel backend serves as a pure JSON-via-Inertia API layer; React + TypeScript on the frontend, scaffolded via `laravel/breeze --stack=react` (Breeze supports an Inertia+React starter directly, which also folds in the auth scaffolding from the Authentication section below).

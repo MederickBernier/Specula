@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      *
      * The seeded password is deliberately weak and is for local development only —
-     * production accounts are created with `php artisan specula:create-user`.
+     * production accounts are created with `php artisan clearsight:create-user`.
      */
     public function run(): void
     {
